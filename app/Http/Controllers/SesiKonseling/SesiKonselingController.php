@@ -4,9 +4,13 @@ namespace App\Http\Controllers\SesiKonseling;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SesiKonselingRequest;
+use App\Http\Requests\StoreLaporanRequest;
+use App\Http\Resources\LaporanKonselingResource;
 use App\Http\Resources\SesiKonselingResources;
 use App\Http\Services\SesiKonselingService;
 use App\Http\Traits\ApiResponse;
+use App\Models\LaporanKonseling;
+use App\Models\SesiKonselings;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -128,6 +132,91 @@ class SesiKonselingController extends Controller
 
             return $this->successResponse(
                 'Berhasil menghapus data sesi konseling',
+                Response::HTTP_OK
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+    }
+
+    public function storeLaporan(StoreLaporanRequest $request, $sesiId)
+    {
+        try {
+            $sesi = SesiKonselings::findOrFail($sesiId);
+
+            $this->sesiKonselingService->createDraftLaporan($sesi, $request->validated());
+
+            return $this->successResponseWithData(
+                SesiKonselingResources::make($sesi->load('laporan')),
+                'Berhasil menyimpan draft laporan',
+                Response::HTTP_CREATED
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+    }
+
+    public function updateLaporan(StoreLaporanRequest $request, $sesiId)
+    {
+        try {
+            $data = $this->sesiKonselingService->updateLaporan(
+                $request->validated(),
+                $sesiId
+            );
+
+            return $this->successResponseWithData(
+                new LaporanKonselingResource($data),
+                'Laporan berhasil diupdate',
+                Response::HTTP_OK
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+    }
+
+    public function uploadFinalLaporan(Request $request, $sesiId)
+    {
+        try {
+            $laporan = $this->sesiKonselingService->findBySesiKonselingId($sesiId);
+
+            $data = $this->sesiKonselingService->uploadAndFinal($request, $laporan);
+
+            return $this->successResponseWithData(
+                new LaporanKonselingResource($data),
+                'Laporan berhasil diupload dan difinalisasi',
+                Response::HTTP_OK
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+    }
+
+
+
+    public function getLaporan($sesiId)
+    {
+        try {
+            $sesi = SesiKonselings::with('laporan')->findOrFail($sesiId);
+
+            if (!$sesi->laporan) {
+                throw new Exception('Laporan belum tersedia');
+            }
+
+            return $this->successResponseWithData(
+                new LaporanKonselingResource($sesi->laporan),
+                'Data laporan berhasil diambil',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {

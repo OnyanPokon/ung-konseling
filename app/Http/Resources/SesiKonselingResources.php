@@ -57,6 +57,13 @@ class SesiKonselingResources extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at->format('d F Y'),
             'updated_at' => $this->updated_at->format('d F Y'),
+            'laporan' => [
+                'id' => $this->laporan?->id,
+                'status' => $this->laporan?->status,
+                'file_url' => $this->laporan?->file_path
+                    ? asset('storage/' . $this->laporan->file_path)
+                    : null,
+            ],
         ];
     }
 }

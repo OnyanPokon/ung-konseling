@@ -26,6 +26,11 @@ class RolePermissionSeeder extends Seeder
             'manajemen_user',
             'manajemen_sesi_konseling',
             'manajemen_artikel',
+            'manajemen_periode',
+            'manajemen_assessment',
+            'manajemen_question',
+            'manajemen_response',
+            'manajemen_response_detail',
 
             // konselor
             'read_jadwal_konselor',
@@ -51,6 +56,11 @@ class RolePermissionSeeder extends Seeder
             'manajemen_hari_layanan',
             'manajemen_user',
             'manajemen_artikel',
+            'manajemen_periode',
+            'manajemen_assessment',
+            'manajemen_question',
+            'manajemen_response',
+            'manajemen_response_detail',
         ]);
 
         $konselor->givePermissionTo([

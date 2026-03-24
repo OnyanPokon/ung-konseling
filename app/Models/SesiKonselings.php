@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SesiKonselings extends Model
 {
-     protected $fillable = [
+    protected $fillable = [
         'tiket_id',
         'konselor_id',
         'hari_layanan_id',
@@ -31,5 +31,10 @@ class SesiKonselings extends Model
     public function hariLayanan()
     {
         return $this->belongsTo(HariLayanans::class);
+    }
+
+    public function laporan()
+    {
+        return $this->hasOne(LaporanKonseling::class, 'sesi_konseling_id');
     }
 }

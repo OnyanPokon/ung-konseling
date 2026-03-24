@@ -10,10 +10,17 @@ use App\Http\Controllers\Tiket\TiketController;
 use App\Http\Controllers\Ai\AiController;
 use App\Http\Controllers\Artikel\ArtikelController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Period\PeriodController;
+use App\Http\Controllers\Assessment\AssessmentController;
+use App\Http\Controllers\Question\QuestionController;
+use App\Http\Controllers\Response\ResponseController;
+use App\Http\Controllers\ResponseDetail\ResponseDetailController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/landing/artikel/', [ArtikelController::class, 'landing']);
 Route::get('/landing/artikel/{slug}', [ArtikelController::class, 'detail']);
+Route::get('/landing/assessment/{slug}', [AssessmentController::class, 'publicShowBySlug']);
+Route::post('/landing/assessment/response', [ResponseController::class, 'store']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
@@ -78,9 +85,58 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::delete("/{id}", "destroy");
     });
 
-
-
     Route::prefix('sesi_konseling')->controller(SesiKonselingController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+        Route::post("/{id}/laporan", "storeLaporan");
+        Route::put("/{id}/laporan", "updateLaporan");
+        Route::get("/{id}/laporan", "getLaporan");
+        Route::post("/{id}/laporan/upload", "uploadLaporan");
+        Route::post("/{id}/laporan/upload-final", "uploadFinalLaporan");
+    });
+
+    Route::prefix('period')->controller(PeriodController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+    });
+
+    Route::prefix('assessment')->controller(AssessmentController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+        Route::get('/{id}/matrix', [AssessmentController::class, 'responseMatrix']);
+    });
+
+    Route::prefix('question')->controller(QuestionController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+    });
+
+    Route::prefix('response')->controller(ResponseController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+    });
+
+    Route::prefix('response_detail')->controller(ResponseDetailController::class)->group(function () {
         Route::get("/", "index");
         Route::post("/", "store");
         Route::delete("/multi-delete", "multiDestroy");

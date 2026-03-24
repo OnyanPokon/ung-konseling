@@ -2,6 +2,8 @@
 
 namespace App\Http\Services;
 
+use App\Http\Traits\FileUpload;
+use App\Models\LaporanKonseling;
 use App\Models\SesiKonselings;
 use App\Notifications\SesiKonselingCreated;
 use Exception;
@@ -9,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class SesiKonselingService
 {
+
+    use FileUpload;
 
     protected $model;
 
@@ -44,6 +48,7 @@ class SesiKonselingService
 
         return $data;
     }
+
 
     public function store($request)
     {
@@ -116,6 +121,117 @@ class SesiKonselingService
             $this->model->whereIn('id', explode(",", $ids))->delete();
 
             DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function createDraftLaporan($sesi, $data)
+    {
+        if ($sesi->laporan && $sesi->laporan->status === 'final') {
+            throw new Exception('Laporan sudah final');
+        }
+
+        return LaporanKonseling::updateOrCreate(
+            ['sesi_konseling_id' => $sesi->id],
+            [
+                'konselor_id' => $sesi->konselor_id,
+
+                // ✅ generate otomatis
+                'nama_kegiatan' => "Kegiatan Layanan {$sesi->tiket->jenis_layanan} {$sesi->tiket->jenis_keluhan}",
+
+                'jenis_layanan' => $data['jenis_layanan'],
+                'tujuan_kegiatan' => $data['tujuan_kegiatan'] ?? null,
+
+                // ✅ generate otomatis
+                'waktu_tempat' => "{$sesi->tempat}, {$sesi->tanggal_konseling} {$sesi->jam_mulai} - {$sesi->jam_selesai}",
+
+                // ✅ generate otomatis
+                'jumlah_peserta' => $sesi->tiket->konseli->user->name,
+
+                'uraian_kegiatan' => $data['uraian_kegiatan'] ?? null,
+                'hasil_dampak' => $data['hasil_dampak'] ?? null,
+                'rekomendasi' => $data['rekomendasi'] ?? null,
+                'html_content' => $data['html_content'] ?? null,
+                'status' => 'draft',
+            ]
+        );
+    }
+
+    public function updateLaporan($data, $sesiKonselingId)
+    {
+        DB::beginTransaction();
+
+        try {
+            $sesi = $this->model->findOrFail($sesiKonselingId);
+
+            $laporan = $sesi->laporan;
+
+            if (!$laporan) {
+                throw new Exception('Laporan belum dibuat');
+            }
+
+            if ($laporan->status === 'final') {
+                throw new Exception('Laporan sudah final, tidak bisa diubah');
+            }
+
+            $laporan->update([
+                'jenis_layanan' => $data['jenis_layanan'],
+                'tujuan_kegiatan' => $data['tujuan_kegiatan'] ?? null,
+                'uraian_kegiatan' => $data['uraian_kegiatan'] ?? null,
+                'hasil_dampak' => $data['hasil_dampak'] ?? null,
+                'rekomendasi' => $data['rekomendasi'] ?? null,
+                'html_content' => $data['html_content'] ?? null,
+            ]);
+
+            DB::commit();
+
+            return $laporan;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function findBySesiKonselingId($id)
+    {
+        $sesi = $this->model->with('laporan')->find($id);
+
+        if (!$sesi || !$sesi->laporan) {
+            throw new Exception('Laporan tidak ditemukan');
+        }
+
+        return $sesi->laporan;
+    }
+
+    public function uploadAndFinal($request, $laporan)
+    {
+        DB::beginTransaction();
+
+        try {
+            if ($laporan->status === 'final') {
+                throw new Exception('Laporan sudah final');
+            }
+
+            if (!$request->hasFile('file')) {
+                throw new Exception('File PDF wajib diupload');
+            }
+
+            $file = $request->file('file');
+
+            // validasi extension
+            $extension = ['pdf'];
+            $filePath = $this->uploadDocument($file, $extension, 'laporan');
+
+            $laporan->update([
+                'file_path' => $filePath,
+                'status' => 'final'
+            ]);
+
+            DB::commit();
+
+            return $laporan;
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
