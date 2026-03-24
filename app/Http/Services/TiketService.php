@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\Tikets;
+use App\Notifications\TiketCreated;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -49,14 +50,14 @@ class TiketService
         try {
             $data = $request->validated();
 
-            Tikets::create([
-                'konseli_id'       => $data['konseli_id'],
-                'konselor_id'      => $data['konselor_id'],
-                'hari_layanan_id'  => $data['hari_layanan_id'],
-                'deskripsi_keluhan' => $data['deskripsi_keluhan'],
-                'jenis_layanan' => $data['jenis_layanan'],
-                'jenis_keluhan' => $data['jenis_keluhan'],
-            ]);
+           $tiket = Tikets::create($data);
+
+            // WAJIB load relasi
+            $tiket->load('konselor.user');
+
+            $konselorUser = $tiket->konselor->user;
+
+            $konselorUser->notify(new TiketCreated($tiket));
 
             DB::commit();
         } catch (Exception $e) {
