@@ -2,15 +2,15 @@
 
 namespace App\Http\Services;
 
-use App\Models\Assessments;
+use App\Models\QuestionScreenings;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class AssessmentService
+class QuestionScreeningService
 {
     protected $model;
 
-    public function __construct(Assessments $model)
+    public function __construct(QuestionScreenings $model)
     {
         $this->model = $model;
     }
@@ -18,10 +18,14 @@ class AssessmentService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->orderBy('created_at', 'desc');
+        $data = $this->model->with('screening');
+
+        if ($screening_id = $request->query('screening_id')) {
+            $data->where('screening_id', $screening_id);
+        }
 
         if ($search = $request->query('search')) {
-            $data->where('title', 'like', '%' . $search . '%');
+            $data->where('question_text', 'like', '%' . $search . '%');
         }
 
         if ($request->page) {
@@ -33,59 +37,15 @@ class AssessmentService
         return $data;
     }
 
-    public function getBySlug(string $slug)
-    {
-        return Assessments::with('questions')
-            ->where('slug', $slug)
-            ->where('is_published', true)
-            ->firstOrFail();
-    }
-
-    public function getResponseMatrix(int $assessmentId)
-    {
-        $assessment = Assessments::with([
-            'questions',
-            'responses.details'
-        ])->findOrFail($assessmentId);
-
-        $questions = $assessment->questions;
-
-        $rows = $assessment->responses->map(function ($response) use ($questions) {
-
-            $answers = $response->details->keyBy('question_id');
-
-            $row = [
-                'name' => $response->name,
-                'email' => $response->email,
-                'institution' => $response->institution,
-            ];
-
-            foreach ($questions as $q) {
-                $row['q_' . $q->id] = $answers[$q->id]->score ?? null;
-            }
-
-            return $row;
-        });
-
-        return [
-            'questions' => $questions->map(fn($q) => [
-                'id' => $q->id,
-                'text' => $q->question_text,
-                'scale' => $q->scale,
-            ]),
-            'rows' => $rows
-        ];
-    }
-
     public function store($request)
     {
         DB::beginTransaction();
 
         try {
             $data = $request->validated();
-            $assessment = Assessments::create($data);
+            $question = QuestionScreenings::create($data);
             DB::commit();
-            return $assessment;
+            return $question;
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -94,8 +54,7 @@ class AssessmentService
 
     public function show($id)
     {
-        $data = $this->model->findOrFail($id);
-        
+        return $this->model->with('screening')->findOrFail($id);
     }
 
     public function update($request, $id)

@@ -8,6 +8,36 @@ use Illuminate\Validation\Rule;
 
 class KonselorRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        // kosong jadi null
+        foreach ($this->all() as $key => $value) {
+            if ($value === '') {
+                $this->merge([$key => null]);
+            }
+        }
+
+        // normalize boolean
+        if ($this->has('is_active')) {
+            $value = strtolower($this->input('is_active'));
+
+            if (in_array($value, ['true', '1', 'yes', 'on'])) {
+                $this->merge(['is_active' => true]);
+            }
+
+            if (in_array($value, ['false', '0', 'no', 'off'])) {
+                $this->merge(['is_active' => false]);
+            }
+        }
+
+        // normalize jenis_kelamin
+        if ($this->has('jenis_kelamin')) {
+            $this->merge([
+                'jenis_kelamin' => strtoupper($this->input('jenis_kelamin'))
+            ]);
+        }
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -23,46 +53,22 @@ class KonselorRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route('id');
-        $konselor = $id ? Konselors::find($id) : null;
-
-        if ($this->isMethod('post')) {
-            return [
-                'nama' => 'required|string',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|min:6',
-                'is_active' => 'required|boolean',
-            ];
-        }
-
-        if ($this->isMethod('put') || $this->isMethod('patch')) {
-            return [
-                'nama' => 'sometimes|required|string',
-
-                'email' => [
-                    'sometimes',
-                    'required',
-                    'email',
-                    Rule::unique('users', 'email')
-                        ->ignore($konselor?->user_id),
-                ],
-
-                'password' => 'nullable|min:6',
-                'is_active' => 'sometimes|required|boolean',
-            ];
-        }
-
-
-        return [];
-    }
-
-    public function messages(): array
-    {
         return [
-            'nama.required' => 'Nama wajib diisi.',
-            'nama.string' => 'Nama harus berupa teks.',
-            'is_active.required' => 'Status aktif wajib diisi.',
-            'is_active.boolean' => 'Status aktif harus berupa nilai boolean (true atau false)'
+            'nama' => 'sometimes|nullable|string',
+
+            'email' => 'sometimes|nullable|email',
+
+            'password' => 'sometimes|nullable|min:6',
+
+            'nip' => 'sometimes|nullable',
+
+            'phone' => 'sometimes|nullable',
+
+            'jenis_kelamin' => 'sometimes|nullable|in:L,P',
+
+            'foto_profil' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+
+            'is_active' => 'sometimes|nullable|boolean',
         ];
     }
 }

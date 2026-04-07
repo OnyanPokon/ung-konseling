@@ -14,7 +14,11 @@ return new class extends Migration
         Schema::create('konselors', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('nip');
+            $table->string('phone');
+            $table->enum('jenis_kelamin', ['L', 'P']);
             $table->boolean('is_active')->default(true);
+            $table->string('foto_profil')->default(null)->nullable();
             $table->timestamps();
         });
     }

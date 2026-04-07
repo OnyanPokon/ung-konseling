@@ -2,15 +2,15 @@
 
 namespace App\Http\Services;
 
-use App\Models\Assessments;
+use App\Models\Screenings;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class AssessmentService
+class ScreeningService
 {
     protected $model;
 
-    public function __construct(Assessments $model)
+    public function __construct(Screenings $model)
     {
         $this->model = $model;
     }
@@ -35,24 +35,24 @@ class AssessmentService
 
     public function getBySlug(string $slug)
     {
-        return Assessments::with('questions')
+        return Screenings::with('questions')
             ->where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
     }
 
-    public function getResponseMatrix(int $assessmentId)
+    public function getResponseMatrix(int $screeningId)
     {
-        $assessment = Assessments::with([
+        $screening = Screenings::with([
             'questions',
-            'responses.details'
-        ])->findOrFail($assessmentId);
+            'responses.details.question'
+        ])->findOrFail($screeningId);
 
-        $questions = $assessment->questions;
+        $questions = $screening->questions;
 
-        $rows = $assessment->responses->map(function ($response) use ($questions) {
+        $rows = $screening->responses->map(function ($response) use ($questions) {
 
-            $answers = $response->details->keyBy('question_id');
+            $answers = $response->details->keyBy('question_screening_id');
 
             $row = [
                 'name' => $response->name,
@@ -83,9 +83,9 @@ class AssessmentService
 
         try {
             $data = $request->validated();
-            $assessment = Assessments::create($data);
+            $screening = Screenings::create($data);
             DB::commit();
-            return $assessment;
+            return $screening;
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -94,10 +94,9 @@ class AssessmentService
 
     public function show($id)
     {
-        $data = $this->model->findOrFail($id);
-        
+        return $this->model->with('questions')->findOrFail($id);
     }
-
+    
     public function update($request, $id)
     {
         DB::beginTransaction();

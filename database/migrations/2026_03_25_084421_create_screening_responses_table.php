@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('responses', function (Blueprint $table) {
+        Schema::create('screening_responses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assessment_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->string('age')->nullable();
-            $table->string('parent_job')->nullable();
-            $table->string('domisili')->nullable();
-            $table->string('gender')->nullable();
-            $table->string('job')->nullable();
+            $table->foreignId('screening_id')->constrained()->cascadeOnDelete();
+            $table->string('email');
+            $table->string('name')->nullable();
+            $table->string('nim')->nullable();
             $table->string('institution')->nullable();
-
+            $table->string('major')->nullable();
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('responses');
+        Schema::dropIfExists('screening_responses');
     }
 };

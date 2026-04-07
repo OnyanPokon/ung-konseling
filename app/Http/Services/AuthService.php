@@ -2,11 +2,15 @@
 
 namespace App\Http\Services;
 
+use App\Models\Konselis;
+use App\Models\Konselors;
+use App\Models\SesiKonselings;
+use App\Models\Tikets;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
@@ -50,7 +54,7 @@ class AuthService
     public function getUser($request)
     {
         try {
-            
+
             if ($request->user()->roles->first()->name == 'konseli' || $request->user()->roles->first()->name == 'admin' || $request->user()->roles->first()->name == 'konselor') {
                 $responseData = [
                     'id' => $request->user()->id,
@@ -76,5 +80,86 @@ class AuthService
         $data = $request->user()->tokens()->delete();
 
         return $data;
+    }
+
+    public function updateProfile($request)
+    {
+        DB::beginTransaction();
+        try {
+            $validated = $request->validate([
+                'name' => 'sometimes|required|string|max:255',
+                'email' => 'sometimes|required|email|unique:users,email,' . $request->user()->id,
+            ]);
+
+            $user = $request->user();
+
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email']
+            ]);
+
+            DB::commit();
+
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ];
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function changePassword($request)
+    {
+        DB::beginTransaction();
+        try {
+            $validated = $request->validate([
+                'current_password' => 'required',
+                'new_password' => 'required|min:6|confirmed',
+            ]);
+
+            $user = $request->user();
+
+            // cek password lama
+            if (!Hash::check($validated['current_password'], $user->password)) {
+                throw new Exception('Password lama tidak sesuai');
+            }
+
+            $user->update([
+                'password' => Hash::make($validated['new_password'])
+            ]);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function getAdminOverview()
+    {
+        $user = Auth::user();
+
+        // pastikan hanya admin
+        if (!$user->roles->pluck('name')->contains('admin')) {
+            throw new Exception('Akses ditolak');
+        }
+
+        $totalKonselor = Konselors::count();
+
+        $totalKonseli = Konselis::count();
+
+        $totalTiket = Tikets::count();
+
+        $totalSesiKonseling = SesiKonselings::count();
+
+        return [
+            'total_konselor' => $totalKonselor,
+            'total_konseli' => $totalKonseli,
+            'total_tiket' => $totalTiket,
+            'total_sesi_konseling' => $totalSesiKonseling,
+        ];
     }
 }

@@ -32,6 +32,10 @@ class UserSeeder extends Seeder
 
         konselors::create([
             'user_id' => $konselorUser->id,
+            'nip' => '12345678',
+            'phone' => '08123456789',
+            'jenis_kelamin' => 'L',
+            
             'is_active' => true,
         ]);
 

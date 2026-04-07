@@ -9,6 +9,7 @@ class Questions extends Model
     protected $fillable = [
         'assessment_id',
         'question_text',
+        'scale',
     ];
 
     public function assessment()

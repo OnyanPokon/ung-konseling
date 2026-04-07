@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class QuestionResources extends JsonResource
+class QuestionScreeningResources extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,11 @@ class QuestionResources extends JsonResource
     {
         return [
             'id' => $this->id,
-            'assessment_id' => $this->assessment_id,
-            'assessment' => $this->whenLoaded('assessment', function() {
+            'screening_id' => $this->screening_id,
+            'screening' => $this->whenLoaded('screening', function () {
                 return [
-                    'id' => $this->assessment->id,
-                    'title' => $this->assessment->title,
+                    'id' => $this->screening->id,
+                    'title' => $this->screening->title,
                 ];
             }),
             'question_text' => $this->question_text,

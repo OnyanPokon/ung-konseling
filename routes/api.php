@@ -10,22 +10,30 @@ use App\Http\Controllers\Tiket\TiketController;
 use App\Http\Controllers\Ai\AiController;
 use App\Http\Controllers\Artikel\ArtikelController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\Period\PeriodController;
 use App\Http\Controllers\Assessment\AssessmentController;
 use App\Http\Controllers\Question\QuestionController;
+use App\Http\Controllers\QuestionScreening\QuestionScreeningController;
 use App\Http\Controllers\Response\ResponseController;
 use App\Http\Controllers\ResponseDetail\ResponseDetailController;
+use App\Http\Controllers\Screening\ScreeningController;
+use App\Http\Controllers\ScreeningResponse\ScreeningResponseController;
+use App\Http\Controllers\ScreeningResponseDetail\ScreeningResponseDetailController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/landing/artikel/', [ArtikelController::class, 'landing']);
 Route::get('/landing/artikel/{slug}', [ArtikelController::class, 'detail']);
 Route::get('/landing/assessment/{slug}', [AssessmentController::class, 'publicShowBySlug']);
 Route::post('/landing/assessment/response', [ResponseController::class, 'store']);
+Route::get('/landing/screening/{slug}', [ScreeningController::class, 'publicShowBySlug']);
+Route::post('/landing/screening/response', [ScreeningResponseController::class, 'store']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
         Route::get("me", "getUser");
+        Route::get("overview", "adminOverview");
         Route::post("logout", "logout");
+        Route::post("change-password", "changePassword");
+        Route::post("update-profile", "updateProfile");
     });
 
     Route::prefix('konseli')->controller(KonselisController::class)->group(function () {
@@ -40,6 +48,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::prefix('konselor')->controller(KonselorController::class)->group(function () {
         Route::get("/", "index");
+        Route::get("/overview", "overview");
         Route::get("/user/{id}", "getByUserId");
         Route::post("/", "store");
         Route::delete("/multi-delete", "multiDestroy");
@@ -99,15 +108,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post("/{id}/laporan/upload-final", "uploadFinalLaporan");
     });
 
-    Route::prefix('period')->controller(PeriodController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
-    });
-
     Route::prefix('assessment')->controller(AssessmentController::class)->group(function () {
         Route::get("/", "index");
         Route::post("/", "store");
@@ -118,7 +118,26 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('/{id}/matrix', [AssessmentController::class, 'responseMatrix']);
     });
 
+    Route::prefix('screening')->controller(ScreeningController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+        Route::get('/{id}/matrix', [ScreeningController::class, 'responseMatrix']);
+    });
+
     Route::prefix('question')->controller(QuestionController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+    });
+
+    Route::prefix('screening_question')->controller(QuestionScreeningController::class)->group(function () {
         Route::get("/", "index");
         Route::post("/", "store");
         Route::delete("/multi-delete", "multiDestroy");
@@ -136,6 +155,15 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::delete("/{id}", "destroy");
     });
 
+    Route::prefix('screening_response')->controller(ScreeningResponseController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+    });
+
     Route::prefix('response_detail')->controller(ResponseDetailController::class)->group(function () {
         Route::get("/", "index");
         Route::post("/", "store");
@@ -144,6 +172,17 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::put("/{id}", "update");
         Route::delete("/{id}", "destroy");
     });
+
+    Route::prefix('screening_response_detail')->controller(ScreeningResponseDetailController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+    });
+
+
 
     Route::post('/ai-chat', [AiController::class, 'chat']);
 

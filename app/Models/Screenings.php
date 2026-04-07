@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 
-class Assessments extends Model
+class Screenings extends Model
 {
     protected $fillable = [
         'title',
@@ -17,19 +16,19 @@ class Assessments extends Model
 
     public function questions()
     {
-        return $this->hasMany(Questions::class, 'assessment_id');
+        return $this->hasMany(QuestionScreenings::class, 'screening_id');
     }
 
     public function responses()
     {
-        return $this->hasMany(Responses::class, 'assessment_id');
+        return $this->hasMany(ScreeningResponses::class, 'screening_id');
     }
 
     protected static function booted()
     {
-        static::creating(function ($assessment) {
-            if (!$assessment->slug) {
-                $assessment->slug = Str::slug($assessment->title) . '-' . uniqid();
+        static::creating(function ($screening) {
+            if (!$screening->slug) {
+                $screening->slug = Str::slug($screening->title) . '-' . uniqid();
             }
         });
     }

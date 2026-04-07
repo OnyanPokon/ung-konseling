@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('periods', function (Blueprint $table) {
+        Schema::create('screening_response_details', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->foreignId('screening_response_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('question_screening_id')->constrained()->cascadeOnDelete();
+            $table->tinyInteger('score');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('periods');
+        Schema::dropIfExists('screening_response_details');
     }
 };

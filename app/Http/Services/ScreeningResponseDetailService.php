@@ -2,19 +2,15 @@
 
 namespace App\Http\Services;
 
-use App\Models\Konselors;
-use App\Models\Periods;
-use App\Models\User;
+use App\Models\ScreeningResponseDetails;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
-class PeriodService
+class ScreeningResponseDetailService
 {
-
     protected $model;
 
-    public function __construct(Periods $model)
+    public function __construct(ScreeningResponseDetails $model)
     {
         $this->model = $model;
     }
@@ -22,10 +18,10 @@ class PeriodService
     public function getAll($request)
     {
         $per_page = $request->per_page ?? 10;
-        $data = $this->model->orderBy('created_at');
+        $data = $this->model->with(['response', 'question'])->orderBy('created_at', 'desc');
 
         if ($search = $request->query('search')) {
-            $data->where('nama', 'like', '%' . $search . '%');
+            $data->where('score', 'like', '%' . $search . '%');
         }
 
         if ($request->page) {
@@ -37,17 +33,15 @@ class PeriodService
         return $data;
     }
 
-
     public function store($request)
     {
         DB::beginTransaction();
 
         try {
             $data = $request->validated();
-
-            $period = Periods::create($data);
-
+            $detail = ScreeningResponseDetails::create($data);
             DB::commit();
+            return $detail;
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -56,7 +50,7 @@ class PeriodService
 
     public function show($id)
     {
-        return $this->model->findOrFail($id);
+        return $this->model->with(['response', 'question'])->findOrFail($id);
     }
 
     public function update($request, $id)
@@ -64,14 +58,12 @@ class PeriodService
         DB::beginTransaction();
         try {
             $validatedData = $request->validated();
-
-            $data = $this->model->findOrFail($id)->update($validatedData);
+            $data = $this->model->findOrFail($id);
+            $data->update($validatedData);
 
             DB::commit();
-
             return $data;
         } catch (Exception $e) {
-
             DB::rollBack();
             throw $e;
         }
@@ -82,12 +74,9 @@ class PeriodService
         DB::beginTransaction();
         try {
             $data = $this->model->findOrFail($id);
-
             $data->delete();
-
             DB::commit();
         } catch (Exception $e) {
-
             DB::rollBack();
             throw $e;
         }
@@ -97,13 +86,14 @@ class PeriodService
     {
         DB::beginTransaction();
         try {
-            $data = $this->model->whereIn('id', explode(",", $ids))->get();
+            $idArray = explode(",", $ids);
+            $data = $this->model->whereIn('id', $idArray)->get();
 
             if ($data->isEmpty()) {
                 DB::rollBack();
                 throw new Exception('Data tidak ditemukan');
             }
-            $this->model->whereIn('id', explode(",", $ids))->delete();
+            $this->model->whereIn('id', $idArray)->delete();
 
             DB::commit();
         } catch (Exception $e) {

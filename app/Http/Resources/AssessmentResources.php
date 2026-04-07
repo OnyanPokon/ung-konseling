@@ -16,12 +16,6 @@ class AssessmentResources extends JsonResource
     {
         return [
             'id' => $this->id,
-            'period' =>  [
-                'id' => $this->period->id,
-                'name' => $this->period->name,
-                'start_date' => $this->period->start_date,
-                'end_date' => $this->period->end_date,
-            ],
             'title' => $this->title,
             'description' => $this->description,
             'is_published' => $this->is_published,

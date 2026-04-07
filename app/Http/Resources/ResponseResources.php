@@ -24,7 +24,11 @@ class ResponseResources extends JsonResource
                 ];
             }),
             'name' => $this->name,
-            'email' => $this->email,
+            'age' => $this->age,
+            'parent_job' => $this->parent_job,
+            'domisili' => $this->domisili,
+            'gender' => $this->gender,
+            'job' => $this->job,
             'institution' => $this->institution,
             'created_at' => $this->created_at->format('d F Y'),
             'updated_at' => $this->updated_at->format('d F Y'),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Models\Questions;
 use App\Models\ResponseDetails;
 use App\Models\Responses;
 use Exception;
@@ -42,14 +43,24 @@ class ResponseService
             $response = Responses::create([
                 'assessment_id' => $data['assessment_id'],
                 'name' => $data['name'],
-                'email' => $data['email'] ?? null,
-                'institution' => $data['institution'] ?? null,
+                'age' => $data['age'],
+                'parent_job' => $data['parent_job'],
+                'domisili' => $data['domisili'],
+                'gender' => $data['gender'],
+                'job' => $data['job'],
+                'institution' => $data['institution'],
             ]);
 
             foreach ($data['answers'] as $answer) {
+                $question = Questions::findOrFail($answer['question_id']);
+
+                if ($answer['score'] > $question->scale) {
+                    throw new Exception("Score melebihi skala pada question ID {$question->id}");
+                }
+
                 ResponseDetails::create([
                     'response_id' => $response->id,
-                    'question_id' => $answer['question_id'],
+                    'question_id' => $question->id,
                     'score' => $answer['score'],
                 ]);
             }

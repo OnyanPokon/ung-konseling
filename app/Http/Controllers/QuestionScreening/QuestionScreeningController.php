@@ -1,37 +1,37 @@
 <?php
 
-namespace App\Http\Controllers\Period;
+namespace App\Http\Controllers\QuestionScreening;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PeriodRequest;
-use App\Http\Resources\PeriodResources;
-use App\Http\Services\PeriodService;
+use App\Http\Requests\QuestionScreeningRequest;
+use App\Http\Resources\QuestionScreeningResources;
+use App\Http\Services\QuestionScreeningService;
 use App\Http\Traits\ApiResponse;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
-class PeriodController extends Controller
+class QuestionScreeningController extends Controller
 {
     use ApiResponse;
 
-    protected $periodService;
+    protected $questionScreeningService;
 
-    public function __construct(PeriodService $periodService)
+    public function __construct(QuestionScreeningService $questionScreeningService)
     {
-        $this->periodService = $periodService;
+        $this->questionScreeningService = $questionScreeningService;
     }
 
     public function index(Request $request)
     {
         try {
-            $data = $this->periodService->getAll($request);
+            $data = $this->questionScreeningService->getAll($request);
 
             return $this->successResponseWithDataIndex(
                 $data,
-                PeriodResources::collection($data),
-                'Data periode berhasil diambil',
+                QuestionScreeningResources::collection($data),
+                'Data pertanyaan berhasil diambil',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -42,13 +42,13 @@ class PeriodController extends Controller
         }
     }
 
-    public function store(PeriodRequest $request)
+    public function store(QuestionScreeningRequest $request)
     {
         try {
-            $this->periodService->store($request);
+            $this->questionScreeningService->store($request);
 
             return $this->successResponse(
-                'Berhasil menambah data periode',
+                'Berhasil menambah data pertanyaan',
                 Response::HTTP_CREATED
             );
         } catch (Exception $e) {
@@ -67,11 +67,11 @@ class PeriodController extends Controller
     public function show($id)
     {
         try {
-            $data = $this->periodService->show($id);
+            $data = $this->questionScreeningService->show($id);
 
             return $this->successResponseWithData(
-                PeriodResources::make($data),
-                'Data periode berhasil diambil',
+                QuestionScreeningResources::make($data),
+                'Data pertanyaan berhasil diambil',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -82,13 +82,13 @@ class PeriodController extends Controller
         }
     }
 
-    public function update(PeriodRequest $request, $id)
+    public function update(QuestionScreeningRequest $request, $id)
     {
         try {
-            $this->periodService->update($request, $id);
+            $this->questionScreeningService->update($request, $id);
 
             return $this->successResponse(
-                'Berhasil mengubah data periode',
+                'Berhasil mengubah data pertanyaan',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -107,10 +107,10 @@ class PeriodController extends Controller
     public function destroy($id)
     {
         try {
-            $this->periodService->destroy($id);
+            $this->questionScreeningService->destroy($id);
 
             return $this->successResponse(
-                'Berhasil menghapus data periode',
+                'Berhasil menghapus data pertanyaan',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -124,10 +124,10 @@ class PeriodController extends Controller
     public function multiDestroy(Request $request)
     {
         try {
-            $this->periodService->multiDestroy($request->ids);
+            $this->questionScreeningService->multiDestroy($request->ids);
 
             return $this->successResponse(
-                'Berhasil menghapus data periode',
+                'Berhasil menghapus data pertanyaan',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {

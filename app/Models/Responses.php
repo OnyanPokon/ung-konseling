@@ -9,7 +9,11 @@ class Responses extends Model
     protected $fillable = [
         'assessment_id',
         'name',
-        'email',
+        'age',
+        'parent_job',
+        'domisili',
+        'gender',
+        'job',
         'institution',
     ];
 

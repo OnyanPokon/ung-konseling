@@ -12,7 +12,11 @@ class Konselors extends Model
 
     protected $fillable = [
         'user_id',
-        'is_active'
+        'is_active',
+        'nip',
+        'phone',
+        'jenis_kelamin',
+        'foto_profil',
     ];
 
     public function user()

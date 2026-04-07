@@ -61,4 +61,69 @@ class AuthController extends Controller
             return $this->errorResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function updateProfile(Request $request)
+    {
+        try {
+            $data = $this->authService->updateProfile($request);
+
+            return $this->successResponseWithData(
+                $data,
+                'Profil berhasil diperbarui',
+                Response::HTTP_OK
+            );
+        } catch (ValidationException $e) {
+            return $this->errorResponseWithData(
+                $e->errors(),
+                'Gagal memperbarui profil',
+                Response::HTTP_BAD_REQUEST
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function changePassword(Request $request)
+    {
+        try {
+            $this->authService->changePassword($request);
+
+            return $this->successResponse(
+                'Password berhasil diubah',
+                Response::HTTP_OK
+            );
+        } catch (ValidationException $e) {
+            return $this->errorResponseWithData(
+                $e->errors(),
+                'Gagal mengubah password',
+                Response::HTTP_BAD_REQUEST
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public function adminOverview(Request $request)
+    {
+        try {
+            $data = $this->authService->getAdminOverview();
+
+            return $this->successResponseWithData(
+                $data,
+                'Data overview admin berhasil diambil',
+                Response::HTTP_OK
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                Response::HTTP_FORBIDDEN
+            );
+        }
+    }
 }

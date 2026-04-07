@@ -155,4 +155,22 @@ class KonselorController extends Controller
             );
         }
     }
+
+    public function overview()
+    {
+        try {
+            $data = $this->konselorService->getOverview();
+
+            return $this->successResponseWithData(
+                $data,
+                'Data overview berhasil diambil',
+                Response::HTTP_OK
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(
+                $e->getMessage(),
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+    }
 }

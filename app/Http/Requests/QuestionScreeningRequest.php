@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class QuestionRequest extends FormRequest
+class QuestionScreeningRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,7 @@ class QuestionRequest extends FormRequest
     {
         if ($this->isMethod('post')) {
             return [
-                'assessment_id' => 'required|exists:assessments,id',
+                'screening_id' => 'required|exists:screenings,id',
                 'question_text' => 'required|string',
                 'scale' => 'required|integer|min:1|max:10'
             ];
@@ -31,7 +31,7 @@ class QuestionRequest extends FormRequest
 
         if ($this->isMethod('put') || $this->isMethod('patch')) {
             return [
-                'assessment_id' => 'sometimes|required|exists:assessments,id',
+                'screening_id' => 'sometimes|required|exists:screenings,id',
                 'question_text' => 'sometimes|required|string',
                 'scale' => 'sometimes|integer|min:1|max:10'
             ];
@@ -43,13 +43,13 @@ class QuestionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'assessment_id.required' => "Assessment wajib diisi.",
-            'assessment_id.exists' => "Assessment tidak valid.",
+            'screening_id.required' => "Assessment wajib diisi.",
+            'screening_id.exists' => "Assessment tidak valid.",
             'question_text.required' => "Teks pertanyaan wajib diisi.",
             'question_text.string' => "Teks pertanyaan harus berupa teks.",
             'scale.required' => "Scale wajib diisi.",
             'scale.integer' => "Scale harus berupa angka.",
-            
+
         ];
     }
 }

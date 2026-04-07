@@ -1,37 +1,37 @@
 <?php
 
-namespace App\Http\Controllers\Assessment;
+namespace App\Http\Controllers\Screening;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AssessmentRequest;
-use App\Http\Resources\AssessmentResources;
-use App\Http\Services\AssessmentService;
+use App\Http\Requests\ScreeningRequest;
+use App\Http\Resources\ScreeningResources;
+use App\Http\Services\ScreeningService;
 use App\Http\Traits\ApiResponse;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
-class AssessmentController extends Controller
+class ScreeningController extends Controller
 {
     use ApiResponse;
 
-    protected $assessmentService;
+    protected $screeningService;
 
-    public function __construct(AssessmentService $assessmentService)
+    public function __construct(ScreeningService $screeningService)
     {
-        $this->assessmentService = $assessmentService;
+        $this->screeningService = $screeningService;
     }
 
     public function index(Request $request)
     {
         try {
-            $data = $this->assessmentService->getAll($request);
+            $data = $this->screeningService->getAll($request);
 
             return $this->successResponseWithDataIndex(
                 $data,
-                AssessmentResources::collection($data),
-                'Data screening berhasil diambil',
+                ScreeningResources::collection($data),
+                'Data Asessment berhasil diambil',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -42,13 +42,13 @@ class AssessmentController extends Controller
         }
     }
 
-    public function store(AssessmentRequest $request)
+    public function store(ScreeningRequest $request)
     {
         try {
-            $this->assessmentService->store($request);
+            $this->screeningService->store($request);
 
             return $this->successResponse(
-                'Berhasil menambah data screening',
+                'Berhasil menambah data Asessment',
                 Response::HTTP_CREATED
             );
         } catch (Exception $e) {
@@ -67,11 +67,11 @@ class AssessmentController extends Controller
     public function show($id)
     {
         try {
-            $data = $this->assessmentService->show($id);
+            $data = $this->screeningService->show($id);
 
             return $this->successResponseWithData(
-                AssessmentResources::make($data),
-                'Data screening berhasil diambil',
+                ScreeningResources::make($data),
+                'Data Asessment berhasil diambil',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -85,7 +85,7 @@ class AssessmentController extends Controller
     public function publicShowBySlug($slug)
     {
         try {
-            $data = $this->assessmentService->getBySlug($slug);
+            $data = $this->screeningService->getBySlug($slug);
 
             $result = [
                 'id' => $data->id,
@@ -102,7 +102,7 @@ class AssessmentController extends Controller
 
             return $this->successResponseWithData(
                 $result,
-                'Assessment berhasil diambil',
+                'Screening berhasil diambil',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -113,10 +113,10 @@ class AssessmentController extends Controller
         }
     }
 
-    public function responseMatrix($assessmentId)
+    public function responseMatrix($ScreeningId)
     {
         try {
-            $data = $this->assessmentService->getResponseMatrix($assessmentId);
+            $data = $this->screeningService->getResponseMatrix($ScreeningId);
 
             return $this->successResponseWithData(
                 $data,
@@ -133,13 +133,13 @@ class AssessmentController extends Controller
 
 
 
-    public function update(AssessmentRequest $request, $id)
+    public function update(ScreeningRequest $request, $id)
     {
         try {
-            $this->assessmentService->update($request, $id);
+            $this->screeningService->update($request, $id);
 
             return $this->successResponse(
-                'Berhasil mengubah data screening',
+                'Berhasil mengubah data Asessment',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -158,10 +158,10 @@ class AssessmentController extends Controller
     public function destroy($id)
     {
         try {
-            $this->assessmentService->destroy($id);
+            $this->screeningService->destroy($id);
 
             return $this->successResponse(
-                'Berhasil menghapus data screening',
+                'Berhasil menghapus data Asessment',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {
@@ -175,10 +175,10 @@ class AssessmentController extends Controller
     public function multiDestroy(Request $request)
     {
         try {
-            $this->assessmentService->multiDestroy($request->ids);
+            $this->screeningService->multiDestroy($request->ids);
 
             return $this->successResponse(
-                'Berhasil menghapus data screening',
+                'Berhasil menghapus data Asessment',
                 Response::HTTP_OK
             );
         } catch (Exception $e) {

@@ -2,14 +2,23 @@
 
 namespace App\Http\Services;
 
+use App\Http\Traits\FileUpload;
 use App\Models\Konselors;
+use App\Models\SesiKonselings;
+use App\Models\Tikets;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class KonselorService
 {
+
+    use FileUpload;
+
+    protected $path = 'konselor';
 
     protected $model;
 
@@ -51,6 +60,15 @@ class KonselorService
         try {
             $data = $request->validated();
 
+            if ($request->hasFile('foto_profil')) {
+                $thumbnail = $this->uploadPhotoAndConvertToWebp(
+                    $request->file('foto_profil'),
+                    $this->path
+                );
+
+                $data['foto_profil'] = $thumbnail;
+            }
+
             $user = User::create([
                 'name' => $data['nama'],
                 'email' => $data['email'],
@@ -61,6 +79,10 @@ class KonselorService
 
             Konselors::create([
                 'user_id' => $user->id,
+                'nip' => $data['nip'],
+                'phone' => $data['phone'],
+                'jenis_kelamin' => $data['jenis_kelamin'],
+                'foto_profil' => $data['foto_profil'] ?? null,
                 'is_active' => $data['is_active'],
             ]);
 
@@ -82,13 +104,39 @@ class KonselorService
         try {
             $validatedData = $request->validated();
 
-            $data = $this->model->findOrFail($id)->update($validatedData);
+            $data = $this->show($id);
+
+            // ✅ update user (nama & email)
+            if (isset($validatedData['nama']) || isset($validatedData['email'])) {
+                $data->user->update([
+                    'name' => $validatedData['nama'] ?? $data->user->name,
+                    'email' => $validatedData['email'] ?? $data->user->email,
+                ]);
+            }
+
+            // upload foto
+            if ($request->hasFile('foto_profil')) {
+                $foto_profil = $this->uploadPhotoAndConvertToWebp(
+                    $request->file('foto_profil'),
+                    $this->path
+                );
+
+                $validatedData['foto_profil'] = $foto_profil;
+
+                if ($data->foto_profil != 'default.png') {
+                    $this->unlinkPhoto($data->foto_profil);
+                }
+            }
+
+            unset($validatedData['nama'], $validatedData['email']);
+
+            // update konselors
+            $data->update($validatedData);
 
             DB::commit();
 
             return $data;
         } catch (Exception $e) {
-
             DB::rollBack();
             throw $e;
         }
@@ -127,5 +175,39 @@ class KonselorService
             DB::rollBack();
             throw $e;
         }
+    }
+
+    public function getOverview()
+    {
+        $user = Auth::user();
+        $konselor = $user->konselor;
+
+        if (!$konselor) {
+            return [
+                'total_tiket_menunggu_verifikasi' => 0,
+                'total_sesi_konseling_aktif' => 0,
+                'total_sesi_konseling_hari_ini' => 0,
+            ];
+        }
+
+        $konselorId = $konselor->id;
+
+        $totalTiketMenunggu = Tikets::where('konselor_id', $konselorId)
+            ->where('status', 'menunggu')
+            ->count();
+
+        $totalSesiAktif = SesiKonselings::where('konselor_id', $konselorId)
+            ->where('status', 'aktif')
+            ->count();
+
+        $totalSesiHariIni = SesiKonselings::where('konselor_id', $konselorId)
+            ->whereDate('tanggal_konseling', now())
+            ->count();
+
+        return [
+            'total_tiket_menunggu_verifikasi' => $totalTiketMenunggu,
+            'total_sesi_konseling_aktif' => $totalSesiAktif,
+            'total_sesi_konseling_hari_ini' => $totalSesiHariIni,
+        ];
     }
 }

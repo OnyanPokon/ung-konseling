@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('questions', function (Blueprint $table) {
+        Schema::create('question_screenings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assessment_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('screening_id')->constrained()->cascadeOnDelete();
             $table->text('question_text');
             $table->unsignedInteger('scale');
             $table->timestamps();
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('questions');
+        Schema::dropIfExists('question_screenings');
     }
 };
