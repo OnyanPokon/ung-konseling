@@ -132,13 +132,18 @@ class KonselisService
     {
         DB::beginTransaction();
         try {
-            $data = $this->model->findOrFail($id);
+            $konseli = $this->model->with('user')->findOrFail($id);
 
-            $data->delete();
+            // hapus user terkait
+            if ($konseli->user) {
+                $konseli->user->delete();
+            }
+
+            // hapus konseli
+            $konseli->delete();
 
             DB::commit();
         } catch (Exception $e) {
-
             DB::rollBack();
             throw $e;
         }

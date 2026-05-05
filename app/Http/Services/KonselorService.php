@@ -146,13 +146,23 @@ class KonselorService
     {
         DB::beginTransaction();
         try {
-            $data = $this->model->findOrFail($id);
+            $konselor = $this->model->with('user')->findOrFail($id);
 
-            $data->delete();
+            // hapus foto jika ada
+            if ($konselor->foto_profil && $konselor->foto_profil !== 'default.png') {
+                $this->unlinkPhoto($konselor->foto_profil);
+            }
+
+            // hapus user terkait
+            if ($konselor->user) {
+                $konselor->user->delete();
+            }
+
+            // hapus konselor
+            $konselor->delete();
 
             DB::commit();
         } catch (Exception $e) {
-
             DB::rollBack();
             throw $e;
         }
