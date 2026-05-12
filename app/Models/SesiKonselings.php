@@ -37,4 +37,9 @@ class SesiKonselings extends Model
     {
         return $this->hasOne(LaporanKonseling::class, 'sesi_konseling_id');
     }
+
+    public function laiseg()
+    {
+        return $this->hasOne(Laisegs::class, 'sesi_konseling_id');
+    }
 }

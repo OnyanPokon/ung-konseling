@@ -53,7 +53,6 @@ class SesiKonselingResources extends JsonResource
             'jam_mulai' => $this->jam_mulai,
             'jam_selesai' => $this->jam_selesai,
             'tempat' => $this->tempat,
-            'catatan_konselor' => $this->catatan_konselor,
             'status' => $this->status,
             'created_at' => $this->created_at->format('d F Y'),
             'updated_at' => $this->updated_at->format('d F Y'),
@@ -63,6 +62,17 @@ class SesiKonselingResources extends JsonResource
                 'file_url' => $this->laporan?->file_path
                     ? asset('storage/' . $this->laporan->file_path)
                     : null,
+            ],
+            'laiseg' => [
+                'id' => $this->laiseg?->id,
+                'topik_pembahasan' => $this->laiseg?->topik_pembahasan,
+                'pemahaman_baru' => $this->laiseg?->pemahaman_baru,
+                'perasaan_setelah_layanan' => $this->laiseg?->perasaan_setelah_layanan,
+                'rencana_setelah_layanan' => $this->laiseg?->rencana_setelah_layanan,
+                'apakah_terkait_masalah' => $this->laiseg?->apakah_terkait_masalah,
+                'keuntungan_jika_ya' => $this->laiseg?->keuntungan_jika_ya,
+                'keuntungan_jika_tidak' => $this->laiseg?->keuntungan_jika_tidak,
+                'saran_pesan' => $this->laiseg?->saran_pesan,
             ],
         ];
     }

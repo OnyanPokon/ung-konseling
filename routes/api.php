@@ -11,6 +11,7 @@ use App\Http\Controllers\Ai\AiController;
 use App\Http\Controllers\Artikel\ArtikelController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Assessment\AssessmentController;
+use App\Http\Controllers\Laiseg\LaisegController;
 use App\Http\Controllers\Question\QuestionController;
 use App\Http\Controllers\QuestionScreening\QuestionScreeningController;
 use App\Http\Controllers\Response\ResponseController;
@@ -182,7 +183,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::delete("/{id}", "destroy");
     });
 
-
+    Route::prefix('laiseg')->controller(LaisegController::class)->group(function () {
+        Route::get("/", "index");
+        Route::post("/", "store");
+        Route::delete("/multi-delete", "multiDestroy");
+        Route::get("/{id}", "show");
+        Route::put("/{id}", "update");
+        Route::delete("/{id}", "destroy");
+    });
 
     Route::post('/ai-chat', [AiController::class, 'chat']);
 

@@ -31,7 +31,6 @@ class SesiKonselingRequest extends FormRequest
                 'jam_mulai' => 'required|date_format:H:i',
                 'jam_selesai' => 'required|date_format:H:i',
                 'tempat' => 'required|string',
-                'catatan_konselor' => 'required|string',
                 'status' => 'required|in:dijadwalkan,selesai,dijadwalkan_ulang,dibatalkan',
             ];
         }
@@ -45,7 +44,6 @@ class SesiKonselingRequest extends FormRequest
                 'jam_mulai' => 'sometimes|required|date_format:H:i',
                 'jam_selesai' => 'sometimes|required|date_format:H:i',
                 'tempat' => 'sometimes|required|string',
-                'catatan_konselor' => 'sometimes|required|string',
                 'status' => 'sometimes|required|in:dijadwalkan,selesai,dijadwalkan_ulang,dibatalkan',
             ];
         }

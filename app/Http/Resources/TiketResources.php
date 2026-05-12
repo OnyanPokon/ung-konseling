@@ -26,7 +26,6 @@ class TiketResources extends JsonResource
                     'nama' => $this->konseli->user->name,
                     'email' => $this->konseli->user->email,
                 ],
-                'phone' => $this->konseli->phone,
                 'domisili' => $this->konseli->domisili,
                 'jurusan' => $this->konseli->jurusan,
                 'umur' => $this->konseli->umur,

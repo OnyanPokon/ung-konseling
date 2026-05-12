@@ -20,7 +20,6 @@ return new class extends Migration
             $table->time('jam_mulai');
             $table->time('jam_selesai');
             $table->string('tempat');
-            $table->text('catatan_konselor')->nullable();
             $table->enum('status', [
                 'dijadwalkan',
                 'selesai',

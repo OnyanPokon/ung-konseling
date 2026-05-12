@@ -19,6 +19,10 @@ class JadwalKonselorResources extends JsonResource
             'konselor' => [
                 'id' => $this->konselor->id,
                 'is_active' => $this->konselor->is_active,
+                'foto_profil' => $this->konselor->foto_profil,
+                'nip' => $this->konselor->nip,
+                'phone' => $this->konselor->phone,
+                'jenis_kelamin' => $this->konselor->jenis_kelamin,
                 'user' => [
                     'id' => $this->konselor->user->id,
                     'nama' => $this->konselor->user->name,
