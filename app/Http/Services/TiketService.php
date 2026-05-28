@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Models\Tikets;
 use App\Notifications\TiketCreated;
+use App\Notifications\TiketRejected;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -50,7 +51,7 @@ class TiketService
         try {
             $data = $request->validated();
 
-           $tiket = Tikets::create($data);
+            $tiket = Tikets::create($data);
 
             // WAJIB load relasi
             $tiket->load('konselor.user');
@@ -74,14 +75,36 @@ class TiketService
     public function update($request, $id)
     {
         DB::beginTransaction();
+
         try {
             $validatedData = $request->validated();
 
-            $data = $this->model->findOrFail($id)->update($validatedData);
+            $tiket = $this->model
+                ->with('konseli.user')
+                ->findOrFail($id);
+
+            $oldStatus = $tiket->status;
+
+            $tiket->update($validatedData);
+
+            // reload data terbaru
+            $tiket->refresh();
+
+            // kirim notif jika status berubah jadi rejected
+            if (
+                $oldStatus !== 'rejected' &&
+                $tiket->status === 'rejected'
+            ) {
+                $konseliUser = $tiket->konseli->user;
+
+                $konseliUser->notify(
+                    new TiketRejected($tiket)
+                );
+            }
 
             DB::commit();
 
-            return $data;
+            return $tiket;
         } catch (Exception $e) {
 
             DB::rollBack();

@@ -35,7 +35,12 @@ class KonselorService
         if ($search = $request->query('search')) {
             $data->where('nama', 'like', '%' . $search . '%');
         }
-
+        if ($request->has('status')) {
+            $data->where(
+                'is_active',
+                filter_var($request->status, FILTER_VALIDATE_BOOLEAN)
+            );
+        }
         if ($request->page) {
             $data = $data->paginate($per_page);
         } else {

@@ -49,7 +49,6 @@ class TiketResources extends JsonResource
             'status' => $this->status,
             'jenis_layanan' => $this->jenis_layanan,
             'jenis_keluhan' => $this->jenis_keluhan,
-            'urgensi' => $this->urgensi,
             'created_at' => $this->created_at->format('d F Y'),
             'updated_at' => $this->updated_at->format('d F Y'),
         ];

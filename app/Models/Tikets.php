@@ -16,7 +16,6 @@ class Tikets extends Model
         'status',
         'jenis_keluhan',
         'jenis_layanan',
-        'urgensi'
     ];
 
     protected static function booted()

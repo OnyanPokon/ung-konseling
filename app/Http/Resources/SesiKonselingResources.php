@@ -23,7 +23,6 @@ class SesiKonselingResources extends JsonResource
                 'status' => $this->tiket->status,
                 'jenis_layanan' => $this->tiket->jenis_layanan,
                 'jenis_keluhan' => $this->tiket->jenis_keluhan,
-                'urgensi' => $this->tiket->urgensi,
                 'created_at' => $this->tiket->created_at->format('d F Y'),
                 'konseli' => [
                     'id' => $this->tiket->konseli->id,

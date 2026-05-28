@@ -33,7 +33,6 @@ class LaisegResources extends JsonResource
                     'status' => $this->sesi_konseling->tiket->status,
                     'jenis_layanan' => $this->sesi_konseling->tiket->jenis_layanan,
                     'jenis_keluhan' => $this->sesi_konseling->tiket->jenis_keluhan,
-                    'urgensi' => $this->sesi_konseling->tiket->urgensi,
                     'created_at' => $this->sesi_konseling->tiket->created_at->format('d F Y'),
                     'konseli' => [
                         'id' => $this->tiket->konseli->id,
