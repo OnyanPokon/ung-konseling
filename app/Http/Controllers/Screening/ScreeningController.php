@@ -113,10 +113,10 @@ class ScreeningController extends Controller
         }
     }
 
-    public function responseMatrix($ScreeningId)
+    public function responseMatrix(int $ScreeningId, Request $request)
     {
         try {
-            $data = $this->screeningService->getResponseMatrix($ScreeningId);
+            $data = $this->screeningService->getResponseMatrix($ScreeningId, $request);
 
             return $this->successResponseWithData(
                 $data,

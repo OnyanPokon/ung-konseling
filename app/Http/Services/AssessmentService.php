@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\Assessments;
+use App\Models\Responses;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -41,23 +42,39 @@ class AssessmentService
             ->firstOrFail();
     }
 
-    public function getResponseMatrix(int $assessmentId)
+    public function getResponseMatrix(int $assessmentId, $request)
     {
-        $assessment = Assessments::with([
-            'questions',
-            'responses.details'
-        ])->findOrFail($assessmentId);
+        $assessment = Assessments::with('questions')
+            ->findOrFail($assessmentId);
+
+         $responseQuery = Responses::with('details.question')
+            ->where('assessment_id', $assessmentId);
+
+        // Filter tahun
+        if ($year = $request->query('year')) {
+            $responseQuery->whereYear('created_at', $year);
+        }
+
+        $perPage = $request->query('per_page', 10);
+
+        $responses = $responseQuery->paginate($perPage);
 
         $questions = $assessment->questions;
 
-        $rows = $assessment->responses->map(function ($response) use ($questions) {
+        $rows = collect($responses->items())->map(function ($response) use ($questions) {
 
             $answers = $response->details->keyBy('question_id');
 
             $row = [
                 'name' => $response->name,
-                'email' => $response->email,
+                'age' => $response->age,
+                'parent_job' => $response->parent_job,
+                'domisili' => $response->domisili,
+                'gender' => $response->gender,
+                'job' => $response->job,
                 'institution' => $response->institution,
+                'createdAt' => $response->created_at->toDateTimeString(),
+
             ];
 
             foreach ($questions as $q) {
@@ -73,7 +90,13 @@ class AssessmentService
                 'text' => $q->question_text,
                 'scale' => $q->scale,
             ]),
-            'rows' => $rows
+            'rows' => $rows,
+            'pagination' => [
+                'current_page' => $responses->currentPage(),
+                'last_page' => $responses->lastPage(),
+                'per_page' => $responses->perPage(),
+                'total' => $responses->total(),
+            ]
         ];
     }
 
@@ -95,7 +118,6 @@ class AssessmentService
     public function show($id)
     {
         $data = $this->model->findOrFail($id);
-        
     }
 
     public function update($request, $id)

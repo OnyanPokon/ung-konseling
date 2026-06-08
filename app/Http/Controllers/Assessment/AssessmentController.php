@@ -113,10 +113,10 @@ class AssessmentController extends Controller
         }
     }
 
-    public function responseMatrix($assessmentId)
+    public function responseMatrix(int $assessmentId, Request $request)
     {
         try {
-            $data = $this->assessmentService->getResponseMatrix($assessmentId);
+            $data = $this->assessmentService->getResponseMatrix($assessmentId, $request);
 
             return $this->successResponseWithData(
                 $data,

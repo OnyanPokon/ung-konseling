@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Models\ScreeningResponses;
 use App\Models\Screenings;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -41,16 +42,26 @@ class ScreeningService
             ->firstOrFail();
     }
 
-    public function getResponseMatrix(int $screeningId)
+    public function getResponseMatrix(int $screeningId, $request)
     {
-        $screening = Screenings::with([
-            'questions',
-            'responses.details.question'
-        ])->findOrFail($screeningId);
+        $screening = Screenings::with('questions')
+            ->findOrFail($screeningId);
+
+        $responseQuery = ScreeningResponses::with('details.question')
+            ->where('screening_id', $screeningId);
+
+        // Filter tahun
+        if ($year = $request->query('year')) {
+            $responseQuery->whereYear('created_at', $year);
+        }
+
+        $perPage = $request->query('per_page', 10);
+
+        $responses = $responseQuery->paginate($perPage);
 
         $questions = $screening->questions;
 
-        $rows = $screening->responses->map(function ($response) use ($questions) {
+        $rows = collect($responses->items())->map(function ($response) use ($questions) {
 
             $answers = $response->details->keyBy('question_screening_id');
 
@@ -58,6 +69,8 @@ class ScreeningService
                 'name' => $response->name,
                 'email' => $response->email,
                 'institution' => $response->institution,
+                'major' => $response->major,
+                'createdAt' => $response->created_at->toDateTimeString(),
             ];
 
             foreach ($questions as $q) {
@@ -73,7 +86,15 @@ class ScreeningService
                 'text' => $q->question_text,
                 'scale' => $q->scale,
             ]),
-            'rows' => $rows
+            'rows' => $rows,
+
+            // metadata pagination
+            'pagination' => [
+                'current_page' => $responses->currentPage(),
+                'last_page' => $responses->lastPage(),
+                'per_page' => $responses->perPage(),
+                'total' => $responses->total(),
+            ]
         ];
     }
 
@@ -96,7 +117,7 @@ class ScreeningService
     {
         return $this->model->with('questions')->findOrFail($id);
     }
-    
+
     public function update($request, $id)
     {
         DB::beginTransaction();
