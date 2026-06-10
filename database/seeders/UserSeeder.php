@@ -53,7 +53,6 @@ class UserSeeder extends Seeder
             'nim' => '12345678',
             'phone' => '08123456789',
             'domisili' => 'Jakarta',
-            'jurusan' => 'Teknik Informatika',
             'umur' => 20,
             'jenis_kelamin' => 'L',
         ]);

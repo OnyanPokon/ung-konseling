@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('nim')->unique();
             $table->string('phone');
             $table->string('domisili');
-            $table->string('jurusan');
             $table->unsignedTinyInteger('umur');
             $table->enum('jenis_kelamin', ['L', 'P']);
             $table->timestamps();

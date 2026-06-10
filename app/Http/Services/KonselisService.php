@@ -64,7 +64,6 @@ class KonselisService
                 'nim' => $data['nim'],
                 'phone' => $data['phone'],
                 'domisili' => $data['domisili'],
-                'jurusan' => $data['jurusan'],
                 'umur' => $data['umur'],
                 'jenis_kelamin' => $data['jenis_kelamin'],
             ]);
