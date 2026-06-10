@@ -14,6 +14,7 @@ class Konselis extends Model
         'nim',
         'phone',
         'domisili',
+        'jurusan',
         'umur',
         'jenis_kelamin',
     ];

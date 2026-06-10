@@ -28,6 +28,11 @@ class SesiKonselingResources extends JsonResource
                     'id' => $this->tiket->konseli->id,
                     'nim' => $this->tiket->konseli->nim,
                     'phone' => $this->tiket->konseli->phone,
+                    'domisili' => $this->tiket->konseli->domisili,
+                    'jurusan' => $this->tiket->konseli->jurusan,
+                    'umur' => $this->tiket->konseli->umur,
+                    'jenis_kelamin' => $this->tiket->konseli->jenis_kelamin,
+                    
                     'user' => [
                         'id' => $this->tiket->konseli->user->id,
                         'nama' => $this->tiket->konseli->user->name,

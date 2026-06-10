@@ -34,6 +34,7 @@ class KonselisRequest extends FormRequest
                 'nim' => 'required|string|unique:konselis,nim',
                 'phone' => 'required|string',
                 'domisili' => 'required|string|max:255',
+                'jurusan' => 'required|string|max:255',
                 'umur' => 'required|integer|min:15|max:100',
                 'jenis_kelamin' => 'required|in:L,P',
             ];
@@ -62,6 +63,7 @@ class KonselisRequest extends FormRequest
 
                 'phone' => 'sometimes|required|string',
                 'domisili' => 'sometimes|required|string|max:255',
+                'jurusan' => 'sometimes|required|string|max:255',
                 'umur' => 'sometimes|required|integer|min:15|max:100',
                 'jenis_kelamin' => 'sometimes|required|in:L,P',
             ];
