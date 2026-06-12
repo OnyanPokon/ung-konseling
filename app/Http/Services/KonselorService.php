@@ -208,11 +208,11 @@ class KonselorService
         $konselorId = $konselor->id;
 
         $totalTiketMenunggu = Tikets::where('konselor_id', $konselorId)
-            ->where('status', 'menunggu')
+            ->where('status', 'pending')
             ->count();
 
         $totalSesiAktif = SesiKonselings::where('konselor_id', $konselorId)
-            ->where('status', 'aktif')
+            ->where('status', 'dijadwalkan')
             ->count();
 
         $totalSesiHariIni = SesiKonselings::where('konselor_id', $konselorId)
