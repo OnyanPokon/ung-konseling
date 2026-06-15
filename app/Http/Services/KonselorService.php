@@ -197,13 +197,7 @@ class KonselorService
         $user = Auth::user();
         $konselor = $user->konselor;
 
-        if (!$konselor) {
-            return [
-                'total_tiket_menunggu_verifikasi' => 0,
-                'total_sesi_konseling_aktif' => 0,
-                'total_sesi_konseling_hari_ini' => 0,
-            ];
-        }
+        // dd(Auth::user(), Auth::user()->konselor);
 
         $konselorId = $konselor->id;
 
