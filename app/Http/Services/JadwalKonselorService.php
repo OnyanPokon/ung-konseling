@@ -18,7 +18,7 @@ class JadwalKonselorService
 
     public function getAll($request)
     {
-        $per_page = $request->per_page ?? 10;
+        $per_page = $request->per_page ?? 9999;
         $data = $this->model->orderBy('created_at');
 
         if ($search = $request->query('search')) {
