@@ -14,6 +14,12 @@ class SesiKonselingService
 
     use FileUpload;
 
+    /**
+     * The fields a konseli is told about. A move is any change to one of them;
+     * an edit to anything else is not their business and stays silent.
+     */
+    private const SCHEDULE_FIELDS = ['tanggal_konseling', 'jam_mulai', 'jam_selesai', 'tempat'];
+
     protected $model;
 
     protected $whatsAppService;
@@ -86,20 +92,40 @@ class SesiKonselingService
 
     public function update($request, $id)
     {
+        $moved = false;
+
         DB::beginTransaction();
         try {
             $validatedData = $request->validated();
 
-            $data = $this->model->findOrFail($id)->update($validatedData);
+            $sesi = $this->model->findOrFail($id);
+
+            // Read before the write: what the konseli would compare against has
+            // to be what was actually stored, not what the caller submitted.
+            $scheduleBefore = $sesi->only(self::SCHEDULE_FIELDS);
+
+            $data = $sesi->update($validatedData);
+
+            // Re-read after it, so a value the database stored differently than
+            // it was submitted does not read as a move nobody made.
+            $moved = $scheduleBefore !== $sesi->fresh()->only(self::SCHEDULE_FIELDS);
 
             DB::commit();
-
-            return $data;
         } catch (Exception $e) {
 
             DB::rollBack();
             throw $e;
         }
+
+        // Deliberately outside the transaction above, and only for a move, for
+        // the same reason store() notifies after committing: the new schedule is
+        // already durable, so a slow or broken gateway can neither hold a
+        // transaction open nor stop a counselor fixing a scheduling mistake.
+        if ($moved) {
+            $this->whatsAppService->sendReschedule($sesi);
+        }
+
+        return $data;
     }
 
     public function destroy($id)

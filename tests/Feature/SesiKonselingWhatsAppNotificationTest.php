@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\HariLayanans;
 use App\Models\Konselis;
 use App\Models\Konselors;
+use App\Models\SesiKonselings;
 use App\Models\Tikets;
 use App\Models\User;
 use App\Notifications\SesiKonselingCreated;
@@ -19,7 +20,7 @@ use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 /**
- * Every test here drives the public schedule endpoint with the outbound HTTP
+ * Every test here drives the public session endpoints with the outbound HTTP
  * layer faked, asserting on the request that would have reached the gateway —
  * never on internal method calls.
  */
@@ -44,6 +45,16 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
     private const JAM_SELESAI = '11:00';
 
     private const TEMPAT = 'Ruang Konseling Lt. 2';
+
+    private const TANGGAL_BARU = '2026-10-12';
+
+    private const TANGGAL_BARU_INDONESIA = 'Senin, 12 Oktober 2026';
+
+    private const JAM_MULAI_BARU = '14:00';
+
+    private const JAM_SELESAI_BARU = '15:00';
+
+    private const TEMPAT_BARU = 'Ruang Konseling Lt. 3';
 
     private const GATEWAY_ACCEPTS = ['status' => true, 'detail' => 'success'];
 
@@ -278,11 +289,242 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         Notification::assertSentTo($this->konseliUser, SesiKonselingCreated::class);
     }
 
+    public function test_moving_the_date_tells_the_konseli_the_new_date(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->moveTheSessionToANewDate($sesi)->assertOk();
+
+        $this->assertStringContainsString(
+            self::TANGGAL_BARU_INDONESIA,
+            $this->lastMessageSentToTheKonseli()
+        );
+    }
+
+    public function test_moving_the_time_tells_the_konseli_the_new_time(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->moveTheSessionToANewTime($sesi)->assertOk();
+
+        $message = $this->lastMessageSentToTheKonseli();
+
+        $this->assertStringContainsString(self::JAM_MULAI_BARU, $message);
+        $this->assertStringContainsString(self::JAM_SELESAI_BARU, $message);
+    }
+
+    public function test_moving_the_room_tells_the_konseli_the_new_room(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->moveTheSessionToANewRoom($sesi)->assertOk();
+
+        $this->assertStringContainsString(
+            self::TEMPAT_BARU,
+            $this->lastMessageSentToTheKonseli()
+        );
+    }
+
+    public function test_a_moved_session_message_carries_the_whole_new_schedule(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->moveTheSession($sesi, [
+            'tanggal_konseling' => self::TANGGAL_BARU,
+            'jam_mulai' => self::JAM_MULAI_BARU,
+            'jam_selesai' => self::JAM_SELESAI_BARU,
+            'tempat' => self::TEMPAT_BARU,
+        ])->assertOk();
+
+        $message = $this->lastMessageSentToTheKonseli();
+
+        $this->assertStringContainsString(self::TANGGAL_BARU_INDONESIA, $message);
+        $this->assertStringContainsString(self::JAM_MULAI_BARU, $message);
+        $this->assertStringContainsString(self::JAM_SELESAI_BARU, $message);
+        $this->assertStringContainsString(self::TEMPAT_BARU, $message);
+    }
+
+    public function test_a_moved_session_is_not_reported_as_a_second_approved_session(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $approvalMessage = $this->lastMessageSentToTheKonseli();
+
+        $this->moveTheSessionToANewDate($sesi)->assertOk();
+
+        $movedMessage = $this->lastMessageSentToTheKonseli();
+
+        $this->assertNotSame($approvalMessage, $movedMessage);
+        $this->assertStringContainsString('dipindahkan', $movedMessage);
+        $this->assertStringNotContainsString('disetujui', $movedMessage);
+    }
+
+    public function test_a_moved_session_message_still_carries_the_name_and_the_signing_unit(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->moveTheSessionToANewDate($sesi)->assertOk();
+
+        $message = $this->lastMessageSentToTheKonseli();
+
+        $this->assertStringContainsString(self::KONSELI_NAME, $message);
+        $this->assertStringContainsString(config('message.whatsapp.unit_name'), $message);
+        $this->assertStringContainsString(
+            'Pesan ini dikirim otomatis, mohon tidak dibalas.',
+            $message
+        );
+    }
+
+    public function test_editing_a_field_outside_the_schedule_sends_nothing(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->assertTheEditSentNoFurtherMessage(
+            fn () => $this->replaceTheCounselor($sesi)
+        );
+    }
+
+    public function test_marking_a_session_selesai_sends_nothing(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->assertTheEditSentNoFurtherMessage(
+            fn () => $this->moveTheSession($sesi, ['status' => 'selesai'])
+        );
+    }
+
+    public function test_resubmitting_the_schedule_unchanged_sends_nothing(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        // The frontend sends the whole record back on every edit, so the values
+        // a reschedule is judged on have to be compared, not merely received.
+        $this->assertTheEditSentNoFurtherMessage(fn () => $this->moveTheSession($sesi, [
+            'tanggal_konseling' => self::TANGGAL,
+            'jam_mulai' => self::JAM_MULAI,
+            'jam_selesai' => self::JAM_SELESAI,
+            'tempat' => self::TEMPAT,
+        ]));
+    }
+
+    public function test_the_reschedule_is_committed_before_the_gateway_is_called(): void
+    {
+        $transactionsOpenWhileSending = null;
+
+        Http::fake(function () use (&$transactionsOpenWhileSending) {
+            $transactionsOpenWhileSending = DB::connection()->transactionLevel();
+
+            return Http::response(self::GATEWAY_ACCEPTS);
+        });
+
+        $sesi = $this->scheduledSession();
+
+        $transactionsBeforeTheEdit = DB::connection()->transactionLevel();
+
+        $this->moveTheSessionToANewDate($sesi)->assertOk();
+
+        // Two sends, so the level read back is the one the reschedule was
+        // attempted at rather than the approval's.
+        Http::assertSentCount(2);
+
+        $this->assertSame($transactionsBeforeTheEdit, $transactionsOpenWhileSending);
+    }
+
+    public function test_the_new_schedule_is_saved_when_the_gateway_rejects_the_message(): void
+    {
+        $this->gatewayRejects();
+
+        $sesi = $this->scheduledSession();
+
+        $this->moveTheSessionToANewDate($sesi)->assertOk();
+
+        $this->getJson('/api/sesi_konseling')
+            ->assertOk()
+            ->assertJsonFragment([
+                'tempat' => self::TEMPAT,
+                'tanggal_konseling' => self::TANGGAL_BARU,
+            ]);
+    }
+
+    public function test_the_new_schedule_is_saved_when_the_konselis_phone_number_is_malformed(): void
+    {
+        $this->gatewayAccepts();
+        $this->konseli->update(['phone' => 'bukan nomor']);
+
+        $sesi = $this->scheduledSession();
+
+        $this->moveTheSessionToANewDate($sesi)->assertOk();
+
+        $this->getJson('/api/sesi_konseling')
+            ->assertOk()
+            ->assertJsonFragment([
+                'tempat' => self::TEMPAT,
+                'tanggal_konseling' => self::TANGGAL_BARU,
+            ]);
+    }
+
+    public function test_a_failed_reschedule_send_is_logged_as_a_reschedule(): void
+    {
+        $this->gatewayRejects();
+
+        $sesi = $this->scheduledSession();
+
+        Log::spy();
+
+        $this->moveTheSessionToANewDate($sesi)->assertOk();
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->withArgs(function ($message, $context) {
+                return $context['target'] === self::KONSELI_DIALABLE
+                    && $context['event'] === 'reschedule'
+                    && $context['reason'] === 'insufficient quota';
+            });
+    }
+
     private function assertTheAppointmentIsReadable(): void
     {
         $this->getJson('/api/sesi_konseling')
             ->assertOk()
             ->assertJsonFragment(['tempat' => self::TEMPAT, 'tanggal_konseling' => self::TANGGAL]);
+    }
+
+    private function assertTheEditSentNoFurtherMessage(callable $edit): void
+    {
+        // The approval message is the baseline. An empty one would make the
+        // comparison below pass without a single edit ever being made.
+        $messagesBeforeTheEdit = $this->messagesSentToTheKonseli();
+
+        $this->assertNotEmpty($messagesBeforeTheEdit);
+
+        $edit();
+
+        $this->assertSame($messagesBeforeTheEdit, $this->messagesSentToTheKonseli());
+    }
+
+    private function messagesSentToTheKonseli(): array
+    {
+        return Http::recorded()
+            ->map(fn (array $exchange) => $exchange[0]['message'])
+            ->all();
+    }
+
+    private function lastMessageSentToTheKonseli(): string
+    {
+        $messages = $this->messagesSentToTheKonseli();
+
+        $this->assertNotEmpty($messages);
+
+        return end($messages);
     }
 
     private function gatewayAccepts(): void
@@ -307,5 +549,47 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
             'tempat' => self::TEMPAT,
             'status' => 'dijadwalkan',
         ]);
+    }
+
+    private function scheduledSession(): SesiKonselings
+    {
+        $this->scheduleSession()->assertCreated();
+
+        return SesiKonselings::sole();
+    }
+
+    private function moveTheSession(SesiKonselings $sesi, array $changes): TestResponse
+    {
+        return $this->putJson('/api/sesi_konseling/'.$sesi->id, $changes);
+    }
+
+    private function moveTheSessionToANewDate(SesiKonselings $sesi): TestResponse
+    {
+        return $this->moveTheSession($sesi, ['tanggal_konseling' => self::TANGGAL_BARU]);
+    }
+
+    private function moveTheSessionToANewTime(SesiKonselings $sesi): TestResponse
+    {
+        return $this->moveTheSession($sesi, [
+            'jam_mulai' => self::JAM_MULAI_BARU,
+            'jam_selesai' => self::JAM_SELESAI_BARU,
+        ]);
+    }
+
+    private function moveTheSessionToANewRoom(SesiKonselings $sesi): TestResponse
+    {
+        return $this->moveTheSession($sesi, ['tempat' => self::TEMPAT_BARU]);
+    }
+
+    private function replaceTheCounselor(SesiKonselings $sesi): TestResponse
+    {
+        $otherCounselor = Konselors::create([
+            'user_id' => User::factory()->create(['name' => 'Dewi Ananta'])->id,
+            'nip' => '198001012005011002',
+            'phone' => '081200000001',
+            'jenis_kelamin' => 'P',
+        ]);
+
+        return $this->moveTheSession($sesi, ['konselor_id' => $otherCounselor->id]);
     }
 }
