@@ -35,4 +35,22 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | WhatsApp Gateway (Fonnte)
+    |--------------------------------------------------------------------------
+    |
+    | This is the only place the sending account is configured. The number
+    | messages appear to come from is not listed here and cannot be set by
+    | request: it is whatever number is paired with the token below. Moving
+    | sending to an institutional number means pairing that number as a device
+    | in the gateway dashboard and replacing this token — not editing config.
+    |
+    */
+
+    'fonnte' => [
+        'token' => env('FONNTE_TOKEN'),
+        'country_code' => env('FONNTE_COUNTRY_CODE') ?: '62',
+    ],
+
 ];

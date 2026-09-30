@@ -49,10 +49,14 @@ class SesiKonselingController extends Controller
     public function store(SesiKonselingRequest $request)
     {
         try {
-            $this->sesiKonselingService->store($request);
+            $result = $this->sesiKonselingService->store($request);
+            $msg = 'Berhasil menambah data sesi konseling';
+            if (!$result['waStatus']) {
+                $msg .= ', namun gagal mengirim pesan WhatsApp (Fonnte)';
+            }
 
             return $this->successResponse(
-                'Berhasil menambah data sesi konseling',
+                $msg,
                 Response::HTTP_CREATED
             );
         } catch (Exception $e) {

@@ -16,9 +16,12 @@ class SesiKonselingService
 
     protected $model;
 
-    public function __construct(SesiKonselings $model)
+    protected $fonnteService;
+
+    public function __construct(SesiKonselings $model, FonnteService $fonnteService)
     {
         $this->model = $model;
+        $this->fonnteService = $fonnteService;
     }
 
     public function getAll($request)
@@ -63,6 +66,16 @@ class SesiKonselingService
             $konseliUser->notify(new SesiKonselingCreated($sesi));
 
             DB::commit();
+
+            // Send WhatsApp notification to Konseli
+            $phone = $sesi->tiket->konseli->phone ?? null;
+            $waStatus = true;
+            if ($phone) {
+                $message = "Halo {$konseliUser->name}, pendaftaran konseling Anda telah disetujui. Jadwal: {$sesi->tanggal_konseling} jam {$sesi->jam_mulai}.";
+                $waStatus = $this->fonnteService->sendMessage($phone, $message)['success'];
+            }
+
+            return ['sesi' => $sesi, 'waStatus' => $waStatus];
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
