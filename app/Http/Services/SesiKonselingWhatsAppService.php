@@ -34,6 +34,11 @@ class SesiKonselingWhatsAppService
         $this->send($sesi, SesiKonselingEvent::Reschedule);
     }
 
+    public function sendCancellation(SesiKonselings $sesi): void
+    {
+        $this->send($sesi, SesiKonselingEvent::Cancellation);
+    }
+
     private function send(SesiKonselings $sesi, SesiKonselingEvent $event): void
     {
         $target = null;
@@ -81,13 +86,15 @@ class SesiKonselingWhatsAppService
 
     /**
      * What the konseli is told happened. Each event names its own outcome so a
-     * moved session cannot read as a second session being approved.
+     * moved session cannot read as a second session being approved, and a
+     * cancelled one cannot read as a session they should still turn up for.
      */
     private function headline(SesiKonselingEvent $event): string
     {
         return match ($event) {
             SesiKonselingEvent::Approval => 'Sesi konseling yang Anda ajukan telah disetujui oleh konselor.',
             SesiKonselingEvent::Reschedule => 'Sesi konseling Anda telah dipindahkan oleh konselor.',
+            SesiKonselingEvent::Cancellation => 'Sesi konseling Anda telah dibatalkan oleh konselor.',
         };
     }
 

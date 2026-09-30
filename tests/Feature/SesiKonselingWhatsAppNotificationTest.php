@@ -294,7 +294,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         $this->gatewayAccepts();
         $sesi = $this->scheduledSession();
 
-        $this->moveTheSessionToANewDate($sesi)->assertOk();
+        $this->editTheSessionToANewDate($sesi)->assertOk();
 
         $this->assertStringContainsString(
             self::TANGGAL_BARU_INDONESIA,
@@ -307,7 +307,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         $this->gatewayAccepts();
         $sesi = $this->scheduledSession();
 
-        $this->moveTheSessionToANewTime($sesi)->assertOk();
+        $this->editTheSessionToANewTime($sesi)->assertOk();
 
         $message = $this->lastMessageSentToTheKonseli();
 
@@ -320,7 +320,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         $this->gatewayAccepts();
         $sesi = $this->scheduledSession();
 
-        $this->moveTheSessionToANewRoom($sesi)->assertOk();
+        $this->editTheSessionToANewRoom($sesi)->assertOk();
 
         $this->assertStringContainsString(
             self::TEMPAT_BARU,
@@ -333,7 +333,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         $this->gatewayAccepts();
         $sesi = $this->scheduledSession();
 
-        $this->moveTheSession($sesi, [
+        $this->editTheSession($sesi, [
             'tanggal_konseling' => self::TANGGAL_BARU,
             'jam_mulai' => self::JAM_MULAI_BARU,
             'jam_selesai' => self::JAM_SELESAI_BARU,
@@ -355,7 +355,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
 
         $approvalMessage = $this->lastMessageSentToTheKonseli();
 
-        $this->moveTheSessionToANewDate($sesi)->assertOk();
+        $this->editTheSessionToANewDate($sesi)->assertOk();
 
         $movedMessage = $this->lastMessageSentToTheKonseli();
 
@@ -369,7 +369,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         $this->gatewayAccepts();
         $sesi = $this->scheduledSession();
 
-        $this->moveTheSessionToANewDate($sesi)->assertOk();
+        $this->editTheSessionToANewDate($sesi)->assertOk();
 
         $message = $this->lastMessageSentToTheKonseli();
 
@@ -397,7 +397,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         $sesi = $this->scheduledSession();
 
         $this->assertTheEditSentNoFurtherMessage(
-            fn () => $this->moveTheSession($sesi, ['status' => 'selesai'])
+            fn () => $this->editTheSession($sesi, ['status' => 'selesai'])
         );
     }
 
@@ -408,7 +408,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
 
         // The frontend sends the whole record back on every edit, so the values
         // a reschedule is judged on have to be compared, not merely received.
-        $this->assertTheEditSentNoFurtherMessage(fn () => $this->moveTheSession($sesi, [
+        $this->assertTheEditSentNoFurtherMessage(fn () => $this->editTheSession($sesi, [
             'tanggal_konseling' => self::TANGGAL,
             'jam_mulai' => self::JAM_MULAI,
             'jam_selesai' => self::JAM_SELESAI,
@@ -430,7 +430,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
 
         $transactionsBeforeTheEdit = DB::connection()->transactionLevel();
 
-        $this->moveTheSessionToANewDate($sesi)->assertOk();
+        $this->editTheSessionToANewDate($sesi)->assertOk();
 
         // Two sends, so the level read back is the one the reschedule was
         // attempted at rather than the approval's.
@@ -445,7 +445,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
 
         $sesi = $this->scheduledSession();
 
-        $this->moveTheSessionToANewDate($sesi)->assertOk();
+        $this->editTheSessionToANewDate($sesi)->assertOk();
 
         $this->getJson('/api/sesi_konseling')
             ->assertOk()
@@ -462,7 +462,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
 
         $sesi = $this->scheduledSession();
 
-        $this->moveTheSessionToANewDate($sesi)->assertOk();
+        $this->editTheSessionToANewDate($sesi)->assertOk();
 
         $this->getJson('/api/sesi_konseling')
             ->assertOk()
@@ -480,13 +480,184 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
 
         Log::spy();
 
-        $this->moveTheSessionToANewDate($sesi)->assertOk();
+        $this->editTheSessionToANewDate($sesi)->assertOk();
 
         Log::shouldHaveReceived('error')
             ->once()
             ->withArgs(function ($message, $context) {
                 return $context['target'] === self::KONSELI_DIALABLE
                     && $context['event'] === 'reschedule'
+                    && $context['reason'] === 'insufficient quota';
+            });
+    }
+
+    public function test_cancelling_a_session_tells_the_konseli_it_was_cancelled(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        $this->assertStringContainsString('dibatalkan', $this->lastMessageSentToTheKonseli());
+    }
+
+    public function test_a_cancelled_session_is_neither_approved_nor_moved(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $approvalMessage = $this->lastMessageSentToTheKonseli();
+
+        $this->editTheSessionToANewDate($sesi)->assertOk();
+
+        $movedMessage = $this->lastMessageSentToTheKonseli();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        $cancelledMessage = $this->lastMessageSentToTheKonseli();
+
+        $this->assertNotSame($approvalMessage, $cancelledMessage);
+        $this->assertNotSame($movedMessage, $cancelledMessage);
+        $this->assertStringNotContainsString('disetujui', $cancelledMessage);
+        $this->assertStringNotContainsString('dipindahkan', $cancelledMessage);
+    }
+
+    public function test_a_cancelled_session_message_still_carries_the_name_and_the_signed_details(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        $message = $this->lastMessageSentToTheKonseli();
+
+        // A konseli with more than one session needs to be told which one is
+        // off, so the cancelled date travels with the cancellation.
+        $this->assertStringContainsString(self::KONSELI_NAME, $message);
+        $this->assertStringContainsString(self::TANGGAL_INDONESIA, $message);
+        $this->assertStringContainsString(self::TEMPAT, $message);
+        $this->assertStringContainsString(config('message.whatsapp.unit_name'), $message);
+        $this->assertStringContainsString(
+            'Pesan ini dikirim otomatis, mohon tidak dibalas.',
+            $message
+        );
+    }
+
+    public function test_a_status_change_to_another_value_sends_nothing(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->assertTheEditSentNoFurtherMessage(
+            fn () => $this->editTheSession($sesi, ['status' => 'dijadwalkan_ulang'])
+        );
+    }
+
+    public function test_resubmitting_a_cancelled_session_sends_nothing(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        // The frontend sends the whole record back on every edit, so a session
+        // already marked dibatalkan must not re-announce its own cancellation.
+        $this->assertTheEditSentNoFurtherMessage(
+            fn () => $this->cancelTheSession($sesi)
+        );
+    }
+
+    public function test_cancelling_and_moving_in_one_request_sends_only_the_cancellation(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->editTheSession($sesi, [
+            'tanggal_konseling' => self::TANGGAL_BARU,
+            'status' => 'dibatalkan',
+        ])->assertOk();
+
+        // Two sends: the approval and the cancellation. A third would tell the
+        // konseli their session moved and then, separately, that it is off.
+        Http::assertSentCount(2);
+
+        $this->assertStringContainsString('dibatalkan', $this->lastMessageSentToTheKonseli());
+    }
+
+    public function test_a_cancelled_session_sends_nothing_when_its_fields_are_tidied_up(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        // "Moved" would contradict the cancellation the konseli was just sent.
+        $this->assertTheEditSentNoFurtherMessage(
+            fn () => $this->editTheSession($sesi, ['tempat' => self::TEMPAT_BARU])
+        );
+    }
+
+    public function test_restoring_a_cancelled_session_to_dijadwalkan_sends_nothing(): void
+    {
+        $this->gatewayAccepts();
+        $sesi = $this->scheduledSession();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        $this->assertTheEditSentNoFurtherMessage(
+            fn () => $this->editTheSession($sesi, ['status' => 'dijadwalkan'])
+        );
+    }
+
+    public function test_the_cancellation_is_committed_before_the_gateway_is_called(): void
+    {
+        $transactionsOpenWhileSending = null;
+
+        Http::fake(function () use (&$transactionsOpenWhileSending) {
+            $transactionsOpenWhileSending = DB::connection()->transactionLevel();
+
+            return Http::response(self::GATEWAY_ACCEPTS);
+        });
+
+        $sesi = $this->scheduledSession();
+
+        $transactionsBeforeTheEdit = DB::connection()->transactionLevel();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        // Two sends, so the level read back is the one the cancellation was
+        // attempted at rather than the approval's.
+        Http::assertSentCount(2);
+
+        $this->assertSame($transactionsBeforeTheEdit, $transactionsOpenWhileSending);
+    }
+
+    public function test_the_cancellation_is_saved_when_the_gateway_rejects_the_message(): void
+    {
+        $this->gatewayRejects();
+        $sesi = $this->scheduledSession();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        $this->getJson('/api/sesi_konseling')
+            ->assertOk()
+            ->assertJsonFragment(['status' => 'dibatalkan']);
+    }
+
+    public function test_a_failed_cancellation_send_is_logged_as_a_cancellation(): void
+    {
+        $this->gatewayRejects();
+        $sesi = $this->scheduledSession();
+
+        Log::spy();
+
+        $this->cancelTheSession($sesi)->assertOk();
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->withArgs(function ($message, $context) {
+                return $context['target'] === self::KONSELI_DIALABLE
+                    && $context['event'] === 'cancellation'
                     && $context['reason'] === 'insufficient quota';
             });
     }
@@ -558,27 +729,32 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         return SesiKonselings::sole();
     }
 
-    private function moveTheSession(SesiKonselings $sesi, array $changes): TestResponse
+    private function editTheSession(SesiKonselings $sesi, array $changes): TestResponse
     {
         return $this->putJson('/api/sesi_konseling/'.$sesi->id, $changes);
     }
 
-    private function moveTheSessionToANewDate(SesiKonselings $sesi): TestResponse
+    private function editTheSessionToANewDate(SesiKonselings $sesi): TestResponse
     {
-        return $this->moveTheSession($sesi, ['tanggal_konseling' => self::TANGGAL_BARU]);
+        return $this->editTheSession($sesi, ['tanggal_konseling' => self::TANGGAL_BARU]);
     }
 
-    private function moveTheSessionToANewTime(SesiKonselings $sesi): TestResponse
+    private function editTheSessionToANewTime(SesiKonselings $sesi): TestResponse
     {
-        return $this->moveTheSession($sesi, [
+        return $this->editTheSession($sesi, [
             'jam_mulai' => self::JAM_MULAI_BARU,
             'jam_selesai' => self::JAM_SELESAI_BARU,
         ]);
     }
 
-    private function moveTheSessionToANewRoom(SesiKonselings $sesi): TestResponse
+    private function editTheSessionToANewRoom(SesiKonselings $sesi): TestResponse
     {
-        return $this->moveTheSession($sesi, ['tempat' => self::TEMPAT_BARU]);
+        return $this->editTheSession($sesi, ['tempat' => self::TEMPAT_BARU]);
+    }
+
+    private function cancelTheSession(SesiKonselings $sesi): TestResponse
+    {
+        return $this->editTheSession($sesi, ['status' => 'dibatalkan']);
     }
 
     private function replaceTheCounselor(SesiKonselings $sesi): TestResponse
@@ -590,6 +766,6 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
             'jenis_kelamin' => 'P',
         ]);
 
-        return $this->moveTheSession($sesi, ['konselor_id' => $otherCounselor->id]);
+        return $this->editTheSession($sesi, ['konselor_id' => $otherCounselor->id]);
     }
 }

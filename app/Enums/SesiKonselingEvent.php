@@ -6,4 +6,5 @@ enum SesiKonselingEvent: string
 {
     case Approval = 'approval';
     case Reschedule = 'reschedule';
+    case Cancellation = 'cancellation';
 }

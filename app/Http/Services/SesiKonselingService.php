@@ -20,6 +20,14 @@ class SesiKonselingService
      */
     private const SCHEDULE_FIELDS = ['tanggal_konseling', 'jam_mulai', 'jam_selesai', 'tempat'];
 
+    /**
+     * The status that tells the konseli to stop coming. Entering it is the one
+     * status change they are told about; every other transition — including the
+     * dijadwalkan_ulang a move is usually recorded with — is silent on its own
+     * account, and says nothing on its own about whether the session moved.
+     */
+    private const CANCELLED_STATUS = 'dibatalkan';
+
     protected $model;
 
     protected $whatsAppService;
@@ -93,6 +101,7 @@ class SesiKonselingService
     public function update($request, $id)
     {
         $moved = false;
+        $cancelled = false;
 
         DB::beginTransaction();
         try {
@@ -103,12 +112,24 @@ class SesiKonselingService
             // Read before the write: what the konseli would compare against has
             // to be what was actually stored, not what the caller submitted.
             $scheduleBefore = $sesi->only(self::SCHEDULE_FIELDS);
+            $statusBefore = $sesi->status;
 
             $data = $sesi->update($validatedData);
 
             // Re-read after it, so a value the database stored differently than
             // it was submitted does not read as a move nobody made.
-            $moved = $scheduleBefore !== $sesi->fresh()->only(self::SCHEDULE_FIELDS);
+            $sesiAfter = $sesi->fresh();
+
+            $moved = $scheduleBefore !== $sesiAfter->only(self::SCHEDULE_FIELDS);
+            $cancelled = $statusBefore !== self::CANCELLED_STATUS
+                && $sesiAfter->status === self::CANCELLED_STATUS;
+
+            // A cancelled session has no live appointment left to move, so
+            // tidying up its fields afterwards is not news to the konseli, and
+            // telling them it moved would contradict the cancellation they were
+            // just sent. This guards the status the session is left in, not the
+            // one it came from, so a cancellation in the same request wins too.
+            $stillLive = $sesiAfter->status !== self::CANCELLED_STATUS;
 
             DB::commit();
         } catch (Exception $e) {
@@ -117,11 +138,19 @@ class SesiKonselingService
             throw $e;
         }
 
-        // Deliberately outside the transaction above, and only for a move, for
-        // the same reason store() notifies after committing: the new schedule is
-        // already durable, so a slow or broken gateway can neither hold a
-        // transaction open nor stop a counselor fixing a scheduling mistake.
-        if ($moved) {
+        // Deliberately outside the transaction above, and only for a change the
+        // konseli has to be told about, for the same reason store() notifies
+        // after committing: the new schedule is already durable, so a slow or
+        // broken gateway can neither hold a transaction open nor stop a
+        // counselor fixing a scheduling mistake.
+        //
+        // A cancellation wins over a move, because the frontend sends the whole
+        // record back on every edit: one request can carry both, and telling
+        // the konseli their session moved and then that it is off would be two
+        // messages about a single change they are not going to act on.
+        if ($cancelled) {
+            $this->whatsAppService->sendCancellation($sesi);
+        } elseif ($moved && $stillLive) {
             $this->whatsAppService->sendReschedule($sesi);
         }
 
