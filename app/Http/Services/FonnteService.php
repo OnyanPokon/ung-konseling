@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Enums\SesiKonselingEvent;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -17,14 +18,18 @@ class FonnteService
     /**
      * Send a WhatsApp message and report what the gateway said about it.
      *
+     * The event travels with the send so a failure in the log can be traced
+     * back to the schedule change that caused it.
+     *
      * @return array{success: bool, target: string|null, reason: string|null, response: string|null}
      */
-    public function sendMessage(?string $target, string $message): array
+    public function sendMessage(?string $target, string $message, SesiKonselingEvent $event): array
     {
         $number = $this->normalizePhoneNumber($target);
 
         if ($number === null) {
             Log::warning('Fonnte send skipped: phone number holds no usable digits.', [
+                'event' => $event->value,
                 'target' => $target,
             ]);
 
@@ -42,6 +47,7 @@ class FonnteService
                 ]);
         } catch (ConnectionException $e) {
             Log::error('Fonnte send failed: gateway could not be reached.', [
+                'event' => $event->value,
                 'target' => $number,
                 'reason' => $e->getMessage(),
                 'response' => null,
@@ -59,6 +65,7 @@ class FonnteService
         $reason = $this->gatewayReason($body);
 
         Log::error('Fonnte send rejected by gateway.', [
+            'event' => $event->value,
             'target' => $number,
             'reason' => $reason,
             'response' => $response->body(),

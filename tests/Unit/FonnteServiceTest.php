@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Enums\SesiKonselingEvent;
 use App\Http\Services\FonnteService;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
@@ -57,7 +58,7 @@ class FonnteServiceTest extends TestCase
         Http::fake(['api.fonnte.com/*' => Http::response(self::SUCCESS_BODY)]);
 
         foreach (['081234567890', '6281234567890', '+6281234567890', '(0812) 3456-7890'] as $stored) {
-            $this->service->sendMessage($stored, 'halo');
+            $this->service->sendMessage($stored, 'halo', SesiKonselingEvent::Approval);
 
             Http::assertSent(function (Request $request) {
                 return $request['target'] === '6281234567890';
@@ -70,7 +71,7 @@ class FonnteServiceTest extends TestCase
         Http::fake();
         Log::spy();
 
-        $result = $this->service->sendMessage('bukan nomor', 'halo');
+        $result = $this->service->sendMessage('bukan nomor', 'halo', SesiKonselingEvent::Approval);
 
         Http::assertNothingSent();
         Log::shouldHaveReceived('warning')->once();
@@ -88,7 +89,7 @@ class FonnteServiceTest extends TestCase
     {
         Http::fake(['api.fonnte.com/*' => Http::response(self::SUCCESS_BODY)]);
 
-        $this->service->sendMessage('081234567890', 'halo');
+        $this->service->sendMessage('081234567890', 'halo', SesiKonselingEvent::Approval);
 
         Http::assertSent(function (Request $request) {
             return $request->hasHeader('Authorization', self::TOKEN);
@@ -99,7 +100,7 @@ class FonnteServiceTest extends TestCase
     {
         Http::fake(['api.fonnte.com/*' => Http::response(self::SUCCESS_BODY)]);
 
-        $this->service->sendMessage('081234567890', 'halo');
+        $this->service->sendMessage('081234567890', 'halo', SesiKonselingEvent::Approval);
 
         Http::assertSent(function (Request $request) {
             return is_string($request['target']);
@@ -112,7 +113,7 @@ class FonnteServiceTest extends TestCase
 
         Http::fake(['api.fonnte.com/*' => Http::response(self::SUCCESS_BODY)]);
 
-        $this->service->sendMessage('081234567890', 'halo');
+        $this->service->sendMessage('081234567890', 'halo', SesiKonselingEvent::Approval);
 
         Http::assertSent(function (Request $request) {
             return $request['countryCode'] === '1'
@@ -124,7 +125,7 @@ class FonnteServiceTest extends TestCase
     {
         Http::fake(['api.fonnte.com/*' => Http::response(self::SUCCESS_BODY)]);
 
-        $result = $this->service->sendMessage('081234567890', 'halo');
+        $result = $this->service->sendMessage('081234567890', 'halo', SesiKonselingEvent::Approval);
 
         $this->assertTrue($result['success']);
         $this->assertSame('6281234567890', $result['target']);
@@ -138,7 +139,7 @@ class FonnteServiceTest extends TestCase
         ]);
         Log::spy();
 
-        $result = $this->service->sendMessage('081234567890', 'halo');
+        $result = $this->service->sendMessage('081234567890', 'halo', SesiKonselingEvent::Approval);
 
         $this->assertFalse($result['success']);
         $this->assertSame('insufficient quota', $result['reason']);
@@ -160,7 +161,7 @@ class FonnteServiceTest extends TestCase
         });
         Log::spy();
 
-        $result = $this->service->sendMessage('081234567890', 'halo');
+        $result = $this->service->sendMessage('081234567890', 'halo', SesiKonselingEvent::Approval);
 
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('timed out', $result['reason']);

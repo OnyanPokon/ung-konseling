@@ -16,12 +16,12 @@ class SesiKonselingService
 
     protected $model;
 
-    protected $fonnteService;
+    protected $whatsAppService;
 
-    public function __construct(SesiKonselings $model, FonnteService $fonnteService)
+    public function __construct(SesiKonselings $model, SesiKonselingWhatsAppService $whatsAppService)
     {
         $this->model = $model;
-        $this->fonnteService = $fonnteService;
+        $this->whatsAppService = $whatsAppService;
     }
 
     public function getAll($request)
@@ -66,20 +66,17 @@ class SesiKonselingService
             $konseliUser->notify(new SesiKonselingCreated($sesi));
 
             DB::commit();
-
-            // Send WhatsApp notification to Konseli
-            $phone = $sesi->tiket->konseli->phone ?? null;
-            $waStatus = true;
-            if ($phone) {
-                $message = "Halo {$konseliUser->name}, pendaftaran konseling Anda telah disetujui. Jadwal: {$sesi->tanggal_konseling} jam {$sesi->jam_mulai}.";
-                $waStatus = $this->fonnteService->sendMessage($phone, $message)['success'];
-            }
-
-            return ['sesi' => $sesi, 'waStatus' => $waStatus];
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
+
+        // Deliberately outside the transaction above: the schedule is already
+        // committed, so a slow gateway can neither hold a database
+        // transaction open nor cost the konseli their appointment.
+        $this->whatsAppService->sendApproval($sesi);
+
+        return $sesi;
     }
 
     public function show($id)
