@@ -130,6 +130,23 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         });
     }
 
+    public function test_every_format_already_stored_against_a_konseli_reaches_the_same_target(): void
+    {
+        // Numbers reach the database in whichever format the person typed, and
+        // historical records were never rewritten. Each one has to deliver.
+        foreach (['081234567890', '6281234567890', '+6281234567890', '(0812) 3456-7890'] as $stored) {
+            $this->konseli->update(['phone' => $stored]);
+
+            $this->gatewayAccepts();
+
+            $this->scheduleSession()->assertCreated();
+
+            // Asserting against the recording as a whole would let one format
+            // pass on another's delivery, so each attempt is read on its own.
+            $this->assertSame(self::KONSELI_DIALABLE, $this->lastTargetSent());
+        }
+    }
+
     public function test_approving_a_ticket_sends_the_konseli_the_confirmed_schedule(): void
     {
         $this->gatewayAccepts();
@@ -696,6 +713,17 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         $this->assertNotEmpty($messages);
 
         return end($messages);
+    }
+
+    private function lastTargetSent(): ?string
+    {
+        $targets = Http::recorded()
+            ->map(fn (array $exchange) => $exchange[0]['target'])
+            ->all();
+
+        $this->assertNotEmpty($targets);
+
+        return end($targets);
     }
 
     private function gatewayAccepts(): void

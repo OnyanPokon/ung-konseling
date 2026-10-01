@@ -7,7 +7,6 @@ use App\Models\Konselors;
 use App\Models\SesiKonselings;
 use App\Models\Tikets;
 use App\Models\User;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\Hash;
 
 class KonselorService
 {
-
     use FileUpload;
 
     protected $path = 'konselor';
@@ -33,7 +31,7 @@ class KonselorService
         $data = $this->model->orderBy('created_at');
 
         if ($search = $request->query('search')) {
-            $data->where('nama', 'like', '%' . $search . '%');
+            $data->where('nama', 'like', '%'.$search.'%');
         }
         if ($request->has('status')) {
             $data->where(
@@ -85,7 +83,9 @@ class KonselorService
             Konselors::create([
                 'user_id' => $user->id,
                 'nip' => $data['nip'],
-                'phone' => $data['phone'],
+                // A phone number is optional for a counselor, so an absent one is
+                // a valid registration rather than a missing field.
+                'phone' => $data['phone'] ?? null,
                 'jenis_kelamin' => $data['jenis_kelamin'],
                 'foto_profil' => $data['foto_profil'] ?? null,
                 'is_active' => $data['is_active'],
@@ -177,13 +177,13 @@ class KonselorService
     {
         DB::beginTransaction();
         try {
-            $data = $this->model->whereIn('id', explode(",", $ids))->get();
+            $data = $this->model->whereIn('id', explode(',', $ids))->get();
 
             if ($data->isEmpty()) {
                 DB::rollBack();
                 throw new Exception('Data tidak ditemukan');
             }
-            $this->model->whereIn('id', explode(",", $ids))->delete();
+            $this->model->whereIn('id', explode(',', $ids))->delete();
 
             DB::commit();
         } catch (Exception $e) {
