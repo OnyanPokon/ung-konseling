@@ -28,7 +28,7 @@ class TiketRejected extends Notification implements ShouldBroadcast
     {
         return (new MailMessage)
             ->subject('Pengajuan Tiket Ditolak')
-            ->greeting('Halo '.$notifiable->nama)
+            ->greeting('Halo '.$notifiable->name)
             ->line('Mohon maaf, pengajuan layanan konseling Anda ditolak.')
             ->line('Nomor tiket: '.$this->tiket->nomor_tiket)
             ->line('Silakan login ke sistem untuk melihat detail lebih lanjut.');
