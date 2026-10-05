@@ -11,9 +11,9 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         // Roles
-        $admin    = Role::findOrCreate('admin');
+        $admin = Role::findOrCreate('admin');
         $konselor = Role::findOrCreate('konselor');
-        $konseli  = Role::findOrCreate('konseli');
+        $konseli = Role::findOrCreate('konseli');
 
         // Permissions
         $permissions = [
@@ -46,7 +46,6 @@ class RolePermissionSeeder extends Seeder
             'read_sesi_konseling',
 
         ];
-
 
         foreach ($permissions as $permission) {
             Permission::findOrCreate($permission);

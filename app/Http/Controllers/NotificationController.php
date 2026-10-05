@@ -31,7 +31,7 @@ class NotificationController extends Controller
         $notif->markAsRead();
 
         return response()->json([
-            'message' => 'Notification marked as read'
+            'message' => 'Notification marked as read',
         ]);
     }
 
@@ -42,7 +42,7 @@ class NotificationController extends Controller
             ->markAsRead();
 
         return response()->json([
-            'message' => 'All notifications marked as read'
+            'message' => 'All notifications marked as read',
         ]);
     }
 }

@@ -12,14 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
 class AiController extends Controller
 {
     use ApiResponse;
+
     public function chat(Request $request)
     {
         try {
             $messages = $request->messages ?? [];
 
             array_unshift($messages, [
-                "role" => "system",
-                "content" => "Kamu adalah AI yang bertugas mengidentifikasi kategori masalah mahasiswa berdasarkan narasi yang diberikan.
+                'role' => 'system',
+                'content' => "Kamu adalah AI yang bertugas mengidentifikasi kategori masalah mahasiswa berdasarkan narasi yang diberikan.
 
 Kategori yang tersedia:
 - Pribadi
@@ -38,16 +39,16 @@ Aturan:
 Format jawaban:
 'Masalah yang Anda hadapi termasuk dalam kategori [Kategori]. Silakan melanjutkan konsultasi dengan konselor untuk mendapatkan layanan lebih lanjut.'
 
-Jika narasi tidak cukup jelas, pilih kategori yang paling mendekati berdasarkan konteks yang tersedia."
+Jika narasi tidak cukup jelas, pilih kategori yang paling mendekati berdasarkan konteks yang tersedia.",
             ]);
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
-                'Content-Type' => 'application/json'
+                'Authorization' => 'Bearer '.env('GROQ_API_KEY'),
+                'Content-Type' => 'application/json',
             ])->post('https://api.groq.com/openai/v1/chat/completions', [
-                "model" => "llama-3.1-8b-instant",
-                "temperature" => 0.3,
-                "messages" => $messages
+                'model' => 'llama-3.1-8b-instant',
+                'temperature' => 0.3,
+                'messages' => $messages,
             ]);
 
             $data = $response->json();
@@ -55,12 +56,12 @@ Jika narasi tidak cukup jelas, pilih kategori yang paling mendekati berdasarkan 
             $reply = $data['choices'][0]['message']['content'] ?? null;
 
             return response()->json([
-                "code" => Response::HTTP_OK,
-                "status" => true,
-                "message" => "Berhasil mendapatkan respon AI",
-                "data" => [
-                    "reply" => $reply
-                ]
+                'code' => Response::HTTP_OK,
+                'status' => true,
+                'message' => 'Berhasil mendapatkan respon AI',
+                'data' => [
+                    'reply' => $reply,
+                ],
             ], Response::HTTP_OK);
         } catch (Exception $e) {
             return $this->errorResponse(

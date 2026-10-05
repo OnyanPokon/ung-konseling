@@ -17,7 +17,7 @@ class ResponseResources extends JsonResource
         return [
             'id' => $this->id,
             'assessment_id' => $this->assessment_id,
-            'assessment' => $this->whenLoaded('assessment', function() {
+            'assessment' => $this->whenLoaded('assessment', function () {
                 return [
                     'id' => $this->assessment->id,
                     'title' => $this->assessment->title,

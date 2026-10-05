@@ -21,7 +21,7 @@ class ResponseDetailService
         $data = $this->model->with(['response', 'question'])->orderBy('created_at', 'desc');
 
         if ($search = $request->query('search')) {
-            $data->where('score', 'like', '%' . $search . '%');
+            $data->where('score', 'like', '%'.$search.'%');
         }
 
         if ($request->page) {
@@ -41,6 +41,7 @@ class ResponseDetailService
             $data = $request->validated();
             $detail = ResponseDetails::create($data);
             DB::commit();
+
             return $detail;
         } catch (Exception $e) {
             DB::rollBack();
@@ -62,6 +63,7 @@ class ResponseDetailService
             $data->update($validatedData);
 
             DB::commit();
+
             return $data;
         } catch (Exception $e) {
             DB::rollBack();
@@ -86,7 +88,7 @@ class ResponseDetailService
     {
         DB::beginTransaction();
         try {
-            $idArray = explode(",", $ids);
+            $idArray = explode(',', $ids);
             $data = $this->model->whereIn('id', $idArray)->get();
 
             if ($data->isEmpty()) {

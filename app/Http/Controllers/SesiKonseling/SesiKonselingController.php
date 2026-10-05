@@ -9,7 +9,6 @@ use App\Http\Resources\LaporanKonselingResource;
 use App\Http\Resources\SesiKonselingResources;
 use App\Http\Services\SesiKonselingService;
 use App\Http\Traits\ApiResponse;
-use App\Models\LaporanKonseling;
 use App\Models\SesiKonselings;
 use Exception;
 use Illuminate\Http\Request;
@@ -41,7 +40,7 @@ class SesiKonselingController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
     }
@@ -203,14 +202,12 @@ class SesiKonselingController extends Controller
         }
     }
 
-
-
     public function getLaporan($sesiId)
     {
         try {
             $sesi = SesiKonselings::with('laporan')->findOrFail($sesiId);
 
-            if (!$sesi->laporan) {
+            if (! $sesi->laporan) {
                 throw new Exception('Laporan belum tersedia');
             }
 

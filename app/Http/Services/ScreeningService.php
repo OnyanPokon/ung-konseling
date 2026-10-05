@@ -22,7 +22,7 @@ class ScreeningService
         $data = $this->model->orderBy('created_at', 'desc');
 
         if ($search = $request->query('search')) {
-            $data->where('title', 'like', '%' . $search . '%');
+            $data->where('title', 'like', '%'.$search.'%');
         }
 
         if ($request->page) {
@@ -74,14 +74,14 @@ class ScreeningService
             ];
 
             foreach ($questions as $q) {
-                $row['q_' . $q->id] = $answers[$q->id]->score ?? null;
+                $row['q_'.$q->id] = $answers[$q->id]->score ?? null;
             }
 
             return $row;
         });
 
         return [
-            'questions' => $questions->map(fn($q) => [
+            'questions' => $questions->map(fn ($q) => [
                 'id' => $q->id,
                 'text' => $q->question_text,
                 'scale' => $q->scale,
@@ -94,7 +94,7 @@ class ScreeningService
                 'last_page' => $responses->lastPage(),
                 'per_page' => $responses->perPage(),
                 'total' => $responses->total(),
-            ]
+            ],
         ];
     }
 
@@ -106,6 +106,7 @@ class ScreeningService
             $data = $request->validated();
             $screening = Screenings::create($data);
             DB::commit();
+
             return $screening;
         } catch (Exception $e) {
             DB::rollBack();
@@ -127,6 +128,7 @@ class ScreeningService
             $data->update($validatedData);
 
             DB::commit();
+
             return $data;
         } catch (Exception $e) {
             DB::rollBack();
@@ -151,7 +153,7 @@ class ScreeningService
     {
         DB::beginTransaction();
         try {
-            $idArray = explode(",", $ids);
+            $idArray = explode(',', $ids);
             $data = $this->model->whereIn('id', $idArray)->get();
 
             if ($data->isEmpty()) {

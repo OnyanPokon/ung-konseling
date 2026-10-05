@@ -17,14 +17,14 @@ class ResponseDetailResources extends JsonResource
         return [
             'id' => $this->id,
             'response_id' => $this->response_id,
-            'response' => $this->whenLoaded('response', function() {
+            'response' => $this->whenLoaded('response', function () {
                 return [
                     'id' => $this->response->id,
                     'name' => $this->response->name,
                 ];
             }),
             'question_id' => $this->question_id,
-            'question' => $this->whenLoaded('question', function() {
+            'question' => $this->whenLoaded('question', function () {
                 return [
                     'id' => $this->question->id,
                     'question_text' => $this->question->question_text,

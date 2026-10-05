@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notifiable;
 class Konselis extends Model
 {
     use Notifiable;
-    
+
     protected $fillable = [
         'user_id',
         'nim',

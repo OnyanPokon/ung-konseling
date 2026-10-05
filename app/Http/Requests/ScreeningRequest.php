@@ -43,13 +43,13 @@ class ScreeningRequest extends FormRequest
     public function messages(): array
     {
         return [
-          
-            'title.required' => "Judul assessment wajib diisi.",
-            'title.string' => "Judul assessment harus berupa teks.",
-            'title.max' => "Judul assessment maksimal 255 karakter.",
-            'description.string' => "Deskripsi harus berupa teks.",
-            'is_published.required' => "Status publish wajib diisi.",
-            'is_published.boolean' => "Status publish harus berupa boolean.",
+
+            'title.required' => 'Judul assessment wajib diisi.',
+            'title.string' => 'Judul assessment harus berupa teks.',
+            'title.max' => 'Judul assessment maksimal 255 karakter.',
+            'description.string' => 'Deskripsi harus berupa teks.',
+            'is_published.required' => 'Status publish wajib diisi.',
+            'is_published.boolean' => 'Status publish harus berupa boolean.',
         ];
     }
 }

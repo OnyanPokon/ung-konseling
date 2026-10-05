@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 
 class Assessments extends Model
 {
@@ -28,8 +27,8 @@ class Assessments extends Model
     protected static function booted()
     {
         static::creating(function ($assessment) {
-            if (!$assessment->slug) {
-                $assessment->slug = Str::slug($assessment->title) . '-' . uniqid();
+            if (! $assessment->slug) {
+                $assessment->slug = Str::slug($assessment->title).'-'.uniqid();
             }
         });
     }

@@ -32,13 +32,13 @@ class SesiKonselingResources extends JsonResource
                     'jurusan' => $this->tiket->konseli->jurusan,
                     'umur' => $this->tiket->konseli->umur,
                     'jenis_kelamin' => $this->tiket->konseli->jenis_kelamin,
-                    
+
                     'user' => [
                         'id' => $this->tiket->konseli->user->id,
                         'nama' => $this->tiket->konseli->user->name,
                         'email' => $this->tiket->konseli->user->email,
-                    ]
-                ]
+                    ],
+                ],
             ],
             'konselor' => [
                 'id' => $this->konselor->id,
@@ -47,7 +47,7 @@ class SesiKonselingResources extends JsonResource
                     'id' => $this->konselor->user->id,
                     'nama' => $this->konselor->user->name,
                     'email' => $this->konselor->user->email,
-                ]
+                ],
             ],
             'hari_layanan' => [
                 'id' => $this->hariLayanan->id,
@@ -64,7 +64,7 @@ class SesiKonselingResources extends JsonResource
                 'id' => $this->laporan?->id,
                 'status' => $this->laporan?->status,
                 'file_url' => $this->laporan?->file_path
-                    ? asset('storage/' . $this->laporan->file_path)
+                    ? asset('storage/'.$this->laporan->file_path)
                     : null,
             ],
             'laiseg' => [

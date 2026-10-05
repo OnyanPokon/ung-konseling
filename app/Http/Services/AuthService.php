@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
-
     protected $model;
+
     protected $layananMandiriService;
 
     public function login($request)
@@ -24,14 +24,14 @@ class AuthService
         try {
             $validate = $request->validate([
                 'email' => 'required',
-                'password' => 'required'
+                'password' => 'required',
             ]);
 
             $credentials = filter_var($request->email, FILTER_VALIDATE_EMAIL)
                 ? ['email' => $request->email, 'password' => $request->password]
                 : ['name' => $request->email, 'password' => $request->password];
 
-            if (!Auth::attempt($credentials)) {
+            if (! Auth::attempt($credentials)) {
                 throw new Exception('Email atau password salah');
             }
 
@@ -44,6 +44,7 @@ class AuthService
             ];
 
             DB::commit();
+
             return $data;
         } catch (Exception $e) {
             DB::rollBack();
@@ -63,9 +64,9 @@ class AuthService
                     'role' => [
                         'id' => $request->user()->roles->first()->id,
                         'name' => $request->user()->roles->first()->name,
-                        'permissions' => $request->user()->roles->first()->permissions->pluck('name')
+                        'permissions' => $request->user()->roles->first()->permissions->pluck('name'),
                     ],
-                    'permissions' => $request->user()->permissions->pluck('name') ?? '-'
+                    'permissions' => $request->user()->permissions->pluck('name') ?? '-',
                 ];
             }
 
@@ -88,14 +89,14 @@ class AuthService
         try {
             $validated = $request->validate([
                 'name' => 'sometimes|required|string|max:255',
-                'email' => 'sometimes|required|email|unique:users,email,' . $request->user()->id,
+                'email' => 'sometimes|required|email|unique:users,email,'.$request->user()->id,
             ]);
 
             $user = $request->user();
 
             $user->update([
                 'name' => $validated['name'],
-                'email' => $validated['email']
+                'email' => $validated['email'],
             ]);
 
             DB::commit();
@@ -123,12 +124,12 @@ class AuthService
             $user = $request->user();
 
             // cek password lama
-            if (!Hash::check($validated['current_password'], $user->password)) {
+            if (! Hash::check($validated['current_password'], $user->password)) {
                 throw new Exception('Password lama tidak sesuai');
             }
 
             $user->update([
-                'password' => Hash::make($validated['new_password'])
+                'password' => Hash::make($validated['new_password']),
             ]);
 
             DB::commit();
@@ -143,7 +144,7 @@ class AuthService
         $user = Auth::user();
 
         // pastikan hanya admin
-        if (!$user->roles->pluck('name')->contains('admin')) {
+        if (! $user->roles->pluck('name')->contains('admin')) {
             throw new Exception('Akses ditolak');
         }
 

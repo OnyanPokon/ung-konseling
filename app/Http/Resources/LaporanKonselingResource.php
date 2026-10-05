@@ -33,7 +33,7 @@ class LaporanKonselingResource extends JsonResource
                     'jenis_kelamin' => $this->sesi?->tiket?->konseli?->jenis_kelamin,
                 ],
             ],
-            'konselor' =>  $this->konselor->user->name,
+            'konselor' => $this->konselor->user->name,
 
             'nama_kegiatan' => $this->nama_kegiatan,
             'jenis_layanan' => $this->jenis_layanan,
@@ -48,7 +48,7 @@ class LaporanKonselingResource extends JsonResource
             'status' => $this->status,
 
             'file_url' => $this->file_path
-                ? asset('storage/' . $this->file_path)
+                ? asset('storage/'.$this->file_path)
                 : null,
 
             'created_at' => $this->created_at?->format('d F Y'),

@@ -43,12 +43,12 @@ class ScreeningResponseDetailRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'screening_response_id.required' => "Sesi respon wajib diisi.",
-            'screening_response_id.exists' => "Respon tidak valid.",
-            'screening_question_id.required' => "Pertanyaan wajib diisi.",
-            'screening_question_id.exists' => "Pertanyaan tidak valid.",
-            'score.required' => "Skor wajib diisi.",
-            'score.integer' => "Skor harus berupa angka.",
+            'screening_response_id.required' => 'Sesi respon wajib diisi.',
+            'screening_response_id.exists' => 'Respon tidak valid.',
+            'screening_question_id.required' => 'Pertanyaan wajib diisi.',
+            'screening_question_id.exists' => 'Pertanyaan tidak valid.',
+            'score.required' => 'Skor wajib diisi.',
+            'score.integer' => 'Skor harus berupa angka.',
         ];
     }
 }

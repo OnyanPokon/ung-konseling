@@ -37,7 +37,7 @@ class KonselisController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
     }
@@ -59,8 +59,6 @@ class KonselisController extends Controller
             );
         }
     }
-
-
 
     public function store(KonselisRequest $request)
     {
@@ -101,7 +99,6 @@ class KonselisController extends Controller
             );
         }
     }
-
 
     public function show($id)
     {

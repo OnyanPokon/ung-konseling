@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Konselors;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class KonselorRequest extends FormRequest
 {
@@ -33,7 +31,7 @@ class KonselorRequest extends FormRequest
         // normalize jenis_kelamin
         if ($this->has('jenis_kelamin')) {
             $this->merge([
-                'jenis_kelamin' => strtoupper($this->input('jenis_kelamin'))
+                'jenis_kelamin' => strtoupper($this->input('jenis_kelamin')),
             ]);
         }
     }

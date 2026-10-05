@@ -37,7 +37,7 @@ class AssessmentController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
     }
@@ -95,9 +95,9 @@ class AssessmentController extends Controller
                     return [
                         'id' => $q->id,
                         'question_text' => $q->question_text,
-                        'scale' => $q->scale
+                        'scale' => $q->scale,
                     ];
-                })
+                }),
             ];
 
             return $this->successResponseWithData(
@@ -130,8 +130,6 @@ class AssessmentController extends Controller
             );
         }
     }
-
-
 
     public function update(AssessmentRequest $request, $id)
     {

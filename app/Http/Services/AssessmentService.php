@@ -22,7 +22,7 @@ class AssessmentService
         $data = $this->model->orderBy('created_at', 'desc');
 
         if ($search = $request->query('search')) {
-            $data->where('title', 'like', '%' . $search . '%');
+            $data->where('title', 'like', '%'.$search.'%');
         }
 
         if ($request->page) {
@@ -47,7 +47,7 @@ class AssessmentService
         $assessment = Assessments::with('questions')
             ->findOrFail($assessmentId);
 
-         $responseQuery = Responses::with('details.question')
+        $responseQuery = Responses::with('details.question')
             ->where('assessment_id', $assessmentId);
 
         // Filter tahun
@@ -78,14 +78,14 @@ class AssessmentService
             ];
 
             foreach ($questions as $q) {
-                $row['q_' . $q->id] = $answers[$q->id]->score ?? null;
+                $row['q_'.$q->id] = $answers[$q->id]->score ?? null;
             }
 
             return $row;
         });
 
         return [
-            'questions' => $questions->map(fn($q) => [
+            'questions' => $questions->map(fn ($q) => [
                 'id' => $q->id,
                 'text' => $q->question_text,
                 'scale' => $q->scale,
@@ -96,7 +96,7 @@ class AssessmentService
                 'last_page' => $responses->lastPage(),
                 'per_page' => $responses->perPage(),
                 'total' => $responses->total(),
-            ]
+            ],
         ];
     }
 
@@ -108,6 +108,7 @@ class AssessmentService
             $data = $request->validated();
             $assessment = Assessments::create($data);
             DB::commit();
+
             return $assessment;
         } catch (Exception $e) {
             DB::rollBack();
@@ -129,6 +130,7 @@ class AssessmentService
             $data->update($validatedData);
 
             DB::commit();
+
             return $data;
         } catch (Exception $e) {
             DB::rollBack();
@@ -153,7 +155,7 @@ class AssessmentService
     {
         DB::beginTransaction();
         try {
-            $idArray = explode(",", $ids);
+            $idArray = explode(',', $ids);
             $data = $this->model->whereIn('id', $idArray)->get();
 
             if ($data->isEmpty()) {

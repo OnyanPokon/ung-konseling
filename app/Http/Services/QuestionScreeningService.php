@@ -25,7 +25,7 @@ class QuestionScreeningService
         }
 
         if ($search = $request->query('search')) {
-            $data->where('question_text', 'like', '%' . $search . '%');
+            $data->where('question_text', 'like', '%'.$search.'%');
         }
 
         if ($request->page) {
@@ -45,6 +45,7 @@ class QuestionScreeningService
             $data = $request->validated();
             $question = QuestionScreenings::create($data);
             DB::commit();
+
             return $question;
         } catch (Exception $e) {
             DB::rollBack();
@@ -66,6 +67,7 @@ class QuestionScreeningService
             $data->update($validatedData);
 
             DB::commit();
+
             return $data;
         } catch (Exception $e) {
             DB::rollBack();
@@ -90,7 +92,7 @@ class QuestionScreeningService
     {
         DB::beginTransaction();
         try {
-            $idArray = explode(",", $ids);
+            $idArray = explode(',', $ids);
             $data = $this->model->whereIn('id', $idArray)->get();
 
             if ($data->isEmpty()) {

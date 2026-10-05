@@ -24,7 +24,7 @@ return new class extends Migration
                 'dijadwalkan',
                 'selesai',
                 'dijadwalkan_ulang',
-                'dibatalkan'
+                'dibatalkan',
             ])->default('dijadwalkan');
             $table->timestamps();
         });

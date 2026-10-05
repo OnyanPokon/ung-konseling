@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Laisegs extends Model
 {
-
     protected $fillable = [
         'sesi_konseling_id',
         'topik_pembahasan',

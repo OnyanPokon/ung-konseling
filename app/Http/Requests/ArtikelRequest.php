@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Konselis;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class ArtikelRequest extends FormRequest
 {
@@ -25,7 +23,6 @@ class ArtikelRequest extends FormRequest
     {
         $docRule = $this->isMethod('POST') ? 'required' : 'nullable';
 
-
         if ($this->isMethod('post')) {
             return [
                 'judul' => 'required|string',
@@ -43,7 +40,6 @@ class ArtikelRequest extends FormRequest
                 'status' => 'sometimes|required|string',
             ];
         }
-
 
         return [];
     }

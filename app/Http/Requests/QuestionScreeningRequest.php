@@ -25,7 +25,7 @@ class QuestionScreeningRequest extends FormRequest
             return [
                 'screening_id' => 'required|exists:screenings,id',
                 'question_text' => 'required|string',
-                'scale' => 'required|integer|min:1|max:10'
+                'scale' => 'required|integer|min:1|max:10',
             ];
         }
 
@@ -33,7 +33,7 @@ class QuestionScreeningRequest extends FormRequest
             return [
                 'screening_id' => 'sometimes|required|exists:screenings,id',
                 'question_text' => 'sometimes|required|string',
-                'scale' => 'sometimes|integer|min:1|max:10'
+                'scale' => 'sometimes|integer|min:1|max:10',
             ];
         }
 
@@ -43,12 +43,12 @@ class QuestionScreeningRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'screening_id.required' => "Assessment wajib diisi.",
-            'screening_id.exists' => "Assessment tidak valid.",
-            'question_text.required' => "Teks pertanyaan wajib diisi.",
-            'question_text.string' => "Teks pertanyaan harus berupa teks.",
-            'scale.required' => "Scale wajib diisi.",
-            'scale.integer' => "Scale harus berupa angka.",
+            'screening_id.required' => 'Assessment wajib diisi.',
+            'screening_id.exists' => 'Assessment tidak valid.',
+            'question_text.required' => 'Teks pertanyaan wajib diisi.',
+            'question_text.string' => 'Teks pertanyaan harus berupa teks.',
+            'scale.required' => 'Scale wajib diisi.',
+            'scale.integer' => 'Scale harus berupa angka.',
 
         ];
     }

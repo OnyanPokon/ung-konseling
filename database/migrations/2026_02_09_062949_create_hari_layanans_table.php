@@ -20,7 +20,7 @@ return new class extends Migration
                 'kamis',
                 'jumat',
                 'sabtu',
-                'minggu'
+                'minggu',
             ]);
             $table->timestamps();
         });

@@ -42,8 +42,8 @@ class LaisegResources extends JsonResource
                             'id' => $this->sesi_konseling->tiket->konseli->user->id,
                             'nama' => $this->sesi_konseling->tiket->konseli->user->name,
                             'email' => $this->sesi_konseling->tiket->konseli->user->email,
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'konselor' => [
                     'id' => $this->sesi_konseling->konselor->id,
@@ -52,7 +52,7 @@ class LaisegResources extends JsonResource
                         'id' => $this->sesi_konseling->konselor->user->id,
                         'nama' => $this->sesi_konseling->konselor->user->name,
                         'email' => $this->sesi_konseling->konselor->user->email,
-                    ]
+                    ],
                 ],
                 'hari_layanan' => [
                     'id' => $this->sesi_konseling->hariLayanan->id,

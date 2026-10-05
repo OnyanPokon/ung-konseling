@@ -2,10 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\HariLayanans;
-use App\Models\Konselis;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class HariLayananRequest extends FormRequest
 {

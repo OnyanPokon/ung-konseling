@@ -37,7 +37,7 @@ class ArtikelController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
     }
@@ -64,7 +64,6 @@ class ArtikelController extends Controller
             Response::HTTP_OK
         );
     }
-
 
     public function store(ArtikelRequest $request)
     {

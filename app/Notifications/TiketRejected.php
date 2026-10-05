@@ -28,9 +28,9 @@ class TiketRejected extends Notification implements ShouldBroadcast
     {
         return (new MailMessage)
             ->subject('Pengajuan Tiket Ditolak')
-            ->greeting('Halo ' . $notifiable->nama)
+            ->greeting('Halo '.$notifiable->nama)
             ->line('Mohon maaf, pengajuan layanan konseling Anda ditolak.')
-            ->line('Nomor tiket: ' . $this->tiket->nomor_tiket)
+            ->line('Nomor tiket: '.$this->tiket->nomor_tiket)
             ->line('Silakan login ke sistem untuk melihat detail lebih lanjut.');
     }
 
@@ -39,7 +39,7 @@ class TiketRejected extends Notification implements ShouldBroadcast
         return [
             'title' => 'Tiket Ditolak',
             'message' => 'Pengajuan tiket Anda ditolak',
-            'tiket_id' => $this->tiket->id
+            'tiket_id' => $this->tiket->id,
         ];
     }
 
@@ -48,14 +48,14 @@ class TiketRejected extends Notification implements ShouldBroadcast
         return new BroadcastMessage([
             'title' => 'Tiket Ditolak',
             'message' => 'Pengajuan tiket Anda ditolak',
-            'tiket_id' => $this->tiket->id
+            'tiket_id' => $this->tiket->id,
         ]);
     }
 
     public function broadcastOn()
     {
         return new \Illuminate\Broadcasting\PrivateChannel(
-            'User.' . $this->tiket->konseli->user->id
+            'User.'.$this->tiket->konseli->user->id
         );
     }
 }

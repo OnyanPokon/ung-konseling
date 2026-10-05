@@ -17,7 +17,7 @@ class ScreeningResponseResources extends JsonResource
         return [
             'id' => $this->id,
             'screening_id' => $this->screening_id,
-            'screening' => $this->whenLoaded('screening', function() {
+            'screening' => $this->whenLoaded('screening', function () {
                 return [
                     'id' => $this->screening->id,
                     'title' => $this->screening->title,

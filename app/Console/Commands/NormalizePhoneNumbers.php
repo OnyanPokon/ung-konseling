@@ -74,7 +74,7 @@ class NormalizePhoneNumbers extends Command
                         continue;
                     }
 
-                    $model::query()->whereKey($record->getKey())->updateQuietly(['phone' => $dialable]);
+                    $model::query()->whereKey($record->getKey())->update(['phone' => $dialable]);
 
                     $counts['normalized']++;
                 }

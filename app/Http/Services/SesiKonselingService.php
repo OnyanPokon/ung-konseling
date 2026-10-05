@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class SesiKonselingService
 {
-
     use FileUpload;
 
     /**
@@ -44,7 +43,7 @@ class SesiKonselingService
         $data = $this->model->orderBy('created_at');
 
         if ($search = $request->query('search')) {
-            $data->where('hari', 'like', '%' . $search . '%');
+            $data->where('hari', 'like', '%'.$search.'%');
         }
 
         if ($request->konselor_id) {
@@ -65,7 +64,6 @@ class SesiKonselingService
 
         return $data;
     }
-
 
     public function store($request)
     {
@@ -177,13 +175,13 @@ class SesiKonselingService
     {
         DB::beginTransaction();
         try {
-            $data = $this->model->whereIn('id', explode(",", $ids))->get();
+            $data = $this->model->whereIn('id', explode(',', $ids))->get();
 
             if ($data->isEmpty()) {
                 DB::rollBack();
                 throw new Exception('Data tidak ditemukan');
             }
-            $this->model->whereIn('id', explode(",", $ids))->delete();
+            $this->model->whereIn('id', explode(',', $ids))->delete();
 
             DB::commit();
         } catch (Exception $e) {
@@ -233,7 +231,7 @@ class SesiKonselingService
 
             $laporan = $sesi->laporan;
 
-            if (!$laporan) {
+            if (! $laporan) {
                 throw new Exception('Laporan belum dibuat');
             }
 
@@ -263,7 +261,7 @@ class SesiKonselingService
     {
         $sesi = $this->model->with('laporan')->find($id);
 
-        if (!$sesi || !$sesi->laporan) {
+        if (! $sesi || ! $sesi->laporan) {
             throw new Exception('Laporan tidak ditemukan');
         }
 
@@ -279,7 +277,7 @@ class SesiKonselingService
                 throw new Exception('Laporan sudah final');
             }
 
-            if (!$request->hasFile('file')) {
+            if (! $request->hasFile('file')) {
                 throw new Exception('File PDF wajib diupload');
             }
 
@@ -291,7 +289,7 @@ class SesiKonselingService
 
             $laporan->update([
                 'file_path' => $filePath,
-                'status' => 'final'
+                'status' => 'final',
             ]);
 
             DB::commit();

@@ -7,7 +7,6 @@ use App\Models\konselors;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-
 class UserSeeder extends Seeder
 {
     public function run(): void
@@ -35,7 +34,7 @@ class UserSeeder extends Seeder
             'nip' => '12345678',
             'phone' => '08123456789',
             'jenis_kelamin' => 'L',
-            
+
             'is_active' => true,
         ]);
 

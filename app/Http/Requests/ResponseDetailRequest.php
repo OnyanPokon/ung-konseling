@@ -43,12 +43,12 @@ class ResponseDetailRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'response_id.required' => "Sesi respon wajib diisi.",
-            'response_id.exists' => "Respon tidak valid.",
-            'question_id.required' => "Pertanyaan wajib diisi.",
-            'question_id.exists' => "Pertanyaan tidak valid.",
-            'score.required' => "Skor wajib diisi.",
-            'score.integer' => "Skor harus berupa angka.",
+            'response_id.required' => 'Sesi respon wajib diisi.',
+            'response_id.exists' => 'Respon tidak valid.',
+            'question_id.required' => 'Pertanyaan wajib diisi.',
+            'question_id.exists' => 'Pertanyaan tidak valid.',
+            'score.required' => 'Skor wajib diisi.',
+            'score.integer' => 'Skor harus berupa angka.',
         ];
     }
 }

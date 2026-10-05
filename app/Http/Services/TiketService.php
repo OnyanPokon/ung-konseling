@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class TiketService
 {
-
     protected $model;
 
     public function __construct(Tikets $model)
@@ -24,7 +23,7 @@ class TiketService
         $data = $this->model->orderBy('created_at');
 
         if ($search = $request->query('search')) {
-            $data->where('hari', 'like', '%' . $search . '%');
+            $data->where('hari', 'like', '%'.$search.'%');
         }
 
         if ($request->konselor_id) {
@@ -132,13 +131,13 @@ class TiketService
     {
         DB::beginTransaction();
         try {
-            $data = $this->model->whereIn('id', explode(",", $ids))->get();
+            $data = $this->model->whereIn('id', explode(',', $ids))->get();
 
             if ($data->isEmpty()) {
                 DB::rollBack();
                 throw new Exception('Data tidak ditemukan');
             }
-            $this->model->whereIn('id', explode(",", $ids))->delete();
+            $this->model->whereIn('id', explode(',', $ids))->delete();
 
             DB::commit();
         } catch (Exception $e) {

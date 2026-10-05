@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 class ArtikelService
 {
-
     use FileUpload;
 
     protected $path = 'artikel';
+
     protected $model;
 
     public function __construct(Artikels $model)
@@ -27,7 +27,7 @@ class ArtikelService
         $data = $this->model->where('status', 'publikasi')->latest();
 
         if ($search = $request->query('search')) {
-            $data->where('judul', 'like', '%' . $search . '%');
+            $data->where('judul', 'like', '%'.$search.'%');
         }
 
         if ($status = $request->query('status')) {
@@ -43,7 +43,7 @@ class ArtikelService
         $data = $this->model->orderBy('created_at');
 
         if ($search = $request->query('search')) {
-            $data->where('nama', 'like', '%' . $search . '%');
+            $data->where('nama', 'like', '%'.$search.'%');
         }
 
         if ($request->page) {
@@ -59,7 +59,7 @@ class ArtikelService
     {
         $data = $this->model->where('slug', $slug)->where('status', 'publikasi')->first();
 
-        if (!$data) {
+        if (! $data) {
             throw new ServiceException('Artikel tidak ditemukan', 404);
         }
 
@@ -113,7 +113,7 @@ class ArtikelService
                 'slug' => $validatedData['slug'],
                 'konten' => $validatedData['konten'],
                 'thumnbail' => $validatedData['thumbnail'] ?? $data->thumnbail,
-                'status' => $request->status ? $validatedData['status'] : $data->status
+                'status' => $request->status ? $validatedData['status'] : $data->status,
             ]);
 
             return $data;
@@ -142,13 +142,13 @@ class ArtikelService
     {
         DB::beginTransaction();
         try {
-            $data = $this->model->whereIn('id', explode(",", $ids))->get();
+            $data = $this->model->whereIn('id', explode(',', $ids))->get();
 
             if ($data->isEmpty()) {
                 DB::rollBack();
                 throw new Exception('Data tidak ditemukan');
             }
-            $this->model->whereIn('id', explode(",", $ids))->delete();
+            $this->model->whereIn('id', explode(',', $ids))->delete();
 
             DB::commit();
         } catch (Exception $e) {

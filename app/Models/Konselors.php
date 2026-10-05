@@ -7,7 +7,6 @@ use Illuminate\Notifications\Notifiable;
 
 class Konselors extends Model
 {
-
     use Notifiable;
 
     protected $fillable = [

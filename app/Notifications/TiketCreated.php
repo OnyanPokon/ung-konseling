@@ -3,14 +3,13 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class TiketCreated extends Notification implements ShouldBroadcast
 {
-
-   use Queueable;
+    use Queueable;
 
     protected $tiket;
 
@@ -29,7 +28,7 @@ class TiketCreated extends Notification implements ShouldBroadcast
         return [
             'title' => 'Tiket baru masuk',
             'message' => 'Tiket baru telah di ajukan',
-            'tiket_id' => $this->tiket->id
+            'tiket_id' => $this->tiket->id,
         ];
     }
 
@@ -38,12 +37,12 @@ class TiketCreated extends Notification implements ShouldBroadcast
         return new BroadcastMessage([
             'title' => 'Tiket baru masuk',
             'message' => 'Tiket baru telah di ajukan',
-            'tiket_id' => $this->tiket->id
+            'tiket_id' => $this->tiket->id,
         ]);
     }
 
     public function broadcastOn()
     {
-        return new \Illuminate\Broadcasting\PrivateChannel('User.' . $this->tiket->konselor->user->id);
+        return new \Illuminate\Broadcasting\PrivateChannel('User.'.$this->tiket->konselor->user->id);
     }
 }

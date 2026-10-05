@@ -1,17 +1,15 @@
 <?php
 
+use App\Http\Controllers\Ai\AiController;
+use App\Http\Controllers\Artikel\ArtikelController;
+use App\Http\Controllers\Assessment\AssessmentController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\HariLayanan\HariLayananController;
 use App\Http\Controllers\JadwalKonselor\JadwalKonselorController;
 use App\Http\Controllers\Konselis\KonselisController;
 use App\Http\Controllers\Konselor\KonselorController;
-use App\Http\Controllers\SesiKonseling\SesiKonselingController;
-use App\Http\Controllers\Tiket\TiketController;
-use App\Http\Controllers\Ai\AiController;
-use App\Http\Controllers\Artikel\ArtikelController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\Assessment\AssessmentController;
 use App\Http\Controllers\Laiseg\LaisegController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Question\QuestionController;
 use App\Http\Controllers\QuestionScreening\QuestionScreeningController;
 use App\Http\Controllers\Response\ResponseController;
@@ -19,6 +17,8 @@ use App\Http\Controllers\ResponseDetail\ResponseDetailController;
 use App\Http\Controllers\Screening\ScreeningController;
 use App\Http\Controllers\ScreeningResponse\ScreeningResponseController;
 use App\Http\Controllers\ScreeningResponseDetail\ScreeningResponseDetailController;
+use App\Http\Controllers\SesiKonseling\SesiKonselingController;
+use App\Http\Controllers\Tiket\TiketController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/landing/artikel/', [ArtikelController::class, 'landing']);
@@ -30,166 +30,166 @@ Route::post('/landing/screening/response', [ScreeningResponseController::class, 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
-        Route::get("me", "getUser");
-        Route::get("overview", "adminOverview");
-        Route::post("logout", "logout");
-        Route::post("change-password", "changePassword");
-        Route::post("update-profile", "updateProfile");
+        Route::get('me', 'getUser');
+        Route::get('overview', 'adminOverview');
+        Route::post('logout', 'logout');
+        Route::post('change-password', 'changePassword');
+        Route::post('update-profile', 'updateProfile');
     });
 
     Route::prefix('konseli')->controller(KonselisController::class)->group(function () {
-        Route::get("/", "index");
-        Route::get("/user/{id}", "getByUserId");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::get('/user/{id}', 'getByUserId');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('konselor')->controller(KonselorController::class)->group(function () {
-        Route::get("/", "index");
-        Route::get("/overview", "overview");
-        Route::get("/user/{id}", "getByUserId");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::get('/overview', 'overview');
+        Route::get('/user/{id}', 'getByUserId');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('hari_layanan')->controller(HariLayananController::class)->group(function () {
-        Route::get("/", "index");
-        Route::get("/konselor/{id}", "hariByKonselor");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::get('/konselor/{id}', 'hariByKonselor');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('jadwal_konselor')->controller(JadwalKonselorController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('tiket')->controller(TiketController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('artikel')->controller(ArtikelController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('sesi_konseling')->controller(SesiKonselingController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
-        Route::post("/{id}/laporan", "storeLaporan");
-        Route::put("/{id}/laporan", "updateLaporan");
-        Route::get("/{id}/laporan", "getLaporan");
-        Route::post("/{id}/laporan/upload", "uploadLaporan");
-        Route::post("/{id}/laporan/upload-final", "uploadFinalLaporan");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
+        Route::post('/{id}/laporan', 'storeLaporan');
+        Route::put('/{id}/laporan', 'updateLaporan');
+        Route::get('/{id}/laporan', 'getLaporan');
+        Route::post('/{id}/laporan/upload', 'uploadLaporan');
+        Route::post('/{id}/laporan/upload-final', 'uploadFinalLaporan');
     });
 
     Route::prefix('assessment')->controller(AssessmentController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
         Route::get('/{id}/matrix', [AssessmentController::class, 'responseMatrix']);
     });
 
     Route::prefix('screening')->controller(ScreeningController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
         Route::get('/{id}/matrix', [ScreeningController::class, 'responseMatrix']);
     });
 
     Route::prefix('question')->controller(QuestionController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('screening_question')->controller(QuestionScreeningController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('response')->controller(ResponseController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('screening_response')->controller(ScreeningResponseController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('response_detail')->controller(ResponseDetailController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('screening_response_detail')->controller(ScreeningResponseDetailController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::prefix('laiseg')->controller(LaisegController::class)->group(function () {
-        Route::get("/", "index");
-        Route::post("/", "store");
-        Route::delete("/multi-delete", "multiDestroy");
-        Route::get("/{id}", "show");
-        Route::put("/{id}", "update");
-        Route::delete("/{id}", "destroy");
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::delete('/multi-delete', 'multiDestroy');
+        Route::get('/{id}', 'show');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
     Route::post('/ai-chat', [AiController::class, 'chat']);
@@ -202,8 +202,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 });
-Route::prefix("auth")->controller(AuthController::class)->group(function () {
-    Route::post("login", "login")->name('login');
+Route::prefix('auth')->controller(AuthController::class)->group(function () {
+    Route::post('login', 'login')->name('login');
 });
 
 Route::post('register/konseli', [KonselisController::class, 'register']);

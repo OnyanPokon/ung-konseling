@@ -15,7 +15,7 @@ class SesiKonselings extends Model
         'jam_selesai',
         'tempat',
         'catatan_konselor',
-        'status'
+        'status',
     ];
 
     public function tiket()

@@ -26,12 +26,13 @@ class Tikets extends Model
 
             do {
                 $random = strtoupper(Str::random(8)); // 8 karakter alphanumeric
-                $nomor = $year . $random; // 2024XXXXXXXX
+                $nomor = $year.$random; // 2024XXXXXXXX
             } while (self::where('nomor_tiket', $nomor)->exists());
 
             $model->nomor_tiket = $nomor;
         });
     }
+
     public function konseli()
     {
         return $this->belongsTo(konselis::class);

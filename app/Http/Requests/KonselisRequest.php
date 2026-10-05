@@ -69,7 +69,6 @@ class KonselisRequest extends FormRequest
             ];
         }
 
-
         return [];
     }
 

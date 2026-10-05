@@ -27,8 +27,8 @@ class Screenings extends Model
     protected static function booted()
     {
         static::creating(function ($screening) {
-            if (!$screening->slug) {
-                $screening->slug = Str::slug($screening->title) . '-' . uniqid();
+            if (! $screening->slug) {
+                $screening->slug = Str::slug($screening->title).'-'.uniqid();
             }
         });
     }

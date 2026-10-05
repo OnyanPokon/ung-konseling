@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Tikets;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TiketRequest extends FormRequest

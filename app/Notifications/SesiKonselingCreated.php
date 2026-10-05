@@ -3,11 +3,10 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 class SesiKonselingCreated extends Notification implements ShouldBroadcast
 {
@@ -29,11 +28,11 @@ class SesiKonselingCreated extends Notification implements ShouldBroadcast
     {
         return (new MailMessage)
             ->subject('Jadwal Konseling Anda Telah Dijadwalkan')
-            ->greeting('Halo ' . $notifiable->nama)
+            ->greeting('Halo '.$notifiable->nama)
             ->line('Sesi konseling Anda telah dijadwalkan.')
-            ->line('Tanggal: ' . $this->sesi->tanggal_konseling)
-            ->line('Jam: ' . $this->sesi->jam_mulai)
-            ->line('Tempat: ' . $this->sesi->tempat)
+            ->line('Tanggal: '.$this->sesi->tanggal_konseling)
+            ->line('Jam: '.$this->sesi->jam_mulai)
+            ->line('Tempat: '.$this->sesi->tempat)
             ->line('Silakan login untuk melihat detail.');
     }
 
@@ -42,7 +41,7 @@ class SesiKonselingCreated extends Notification implements ShouldBroadcast
         return [
             'title' => 'Jadwal Konseling Dibuat',
             'message' => 'Sesi konseling Anda telah dijadwalkan',
-            'sesi_id' => $this->sesi->id
+            'sesi_id' => $this->sesi->id,
         ];
     }
 
@@ -51,12 +50,12 @@ class SesiKonselingCreated extends Notification implements ShouldBroadcast
         return new BroadcastMessage([
             'title' => 'Jadwal Konseling Dibuat',
             'message' => 'Sesi konseling Anda telah dijadwalkan',
-            'sesi_id' => $this->sesi->id
+            'sesi_id' => $this->sesi->id,
         ]);
     }
 
     public function broadcastOn()
     {
-        return new \Illuminate\Broadcasting\PrivateChannel('User.' . $this->sesi->tiket->konseli->user_id);
+        return new \Illuminate\Broadcasting\PrivateChannel('User.'.$this->sesi->tiket->konseli->user_id);
     }
 }

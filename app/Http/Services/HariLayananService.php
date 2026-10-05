@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class HariLayananService
 {
-
     protected $model;
 
     public function __construct(HariLayanans $model)
@@ -22,7 +21,7 @@ class HariLayananService
         $data = $this->model->orderBy('created_at');
 
         if ($search = $request->query('search')) {
-            $data->where('hari', 'like', '%' . $search . '%');
+            $data->where('hari', 'like', '%'.$search.'%');
         }
 
         if ($request->page) {
@@ -105,13 +104,13 @@ class HariLayananService
     {
         DB::beginTransaction();
         try {
-            $data = $this->model->whereIn('id', explode(",", $ids))->get();
+            $data = $this->model->whereIn('id', explode(',', $ids))->get();
 
             if ($data->isEmpty()) {
                 DB::rollBack();
                 throw new Exception('Data tidak ditemukan');
             }
-            $this->model->whereIn('id', explode(",", $ids))->delete();
+            $this->model->whereIn('id', explode(',', $ids))->delete();
 
             DB::commit();
         } catch (Exception $e) {

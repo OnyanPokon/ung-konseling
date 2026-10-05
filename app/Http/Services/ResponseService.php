@@ -23,7 +23,7 @@ class ResponseService
         $data = $this->model->with('assessment')->orderBy('created_at', 'desc');
 
         if ($search = $request->query('search')) {
-            $data->where('name', 'like', '%' . $search . '%');
+            $data->where('name', 'like', '%'.$search.'%');
         }
 
         if ($request->page) {
@@ -66,6 +66,7 @@ class ResponseService
             }
 
             DB::commit();
+
             return $response;
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -87,6 +88,7 @@ class ResponseService
             $data->update($validatedData);
 
             DB::commit();
+
             return $data;
         } catch (Exception $e) {
             DB::rollBack();
@@ -111,7 +113,7 @@ class ResponseService
     {
         DB::beginTransaction();
         try {
-            $idArray = explode(",", $ids);
+            $idArray = explode(',', $ids);
             $data = $this->model->whereIn('id', $idArray)->get();
 
             if ($data->isEmpty()) {

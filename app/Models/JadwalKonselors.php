@@ -8,7 +8,7 @@ class JadwalKonselors extends Model
 {
     protected $fillable = [
         'konselor_id',
-        'hari_layanan_id'
+        'hari_layanan_id',
     ];
 
     public function konselor()
