@@ -306,6 +306,19 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
         Notification::assertSentTo($this->konseliUser, SesiKonselingCreated::class);
     }
 
+    public function test_the_schedule_email_greets_the_konseli_by_name(): void
+    {
+        $this->gatewayAccepts();
+
+        $this->scheduleSession();
+
+        Notification::assertSentTo($this->konseliUser, SesiKonselingCreated::class, function ($notification) {
+            $mail = $notification->toMail($this->konseliUser);
+            
+            return str_contains($mail->greeting, self::KONSELI_NAME);
+        });
+    }
+
     public function test_moving_the_date_tells_the_konseli_the_new_date(): void
     {
         $this->gatewayAccepts();

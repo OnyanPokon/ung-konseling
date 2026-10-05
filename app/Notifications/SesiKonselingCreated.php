@@ -28,7 +28,7 @@ class SesiKonselingCreated extends Notification implements ShouldBroadcast
     {
         return (new MailMessage)
             ->subject('Jadwal Konseling Anda Telah Dijadwalkan')
-            ->greeting('Halo '.$notifiable->nama)
+            ->greeting('Halo '.$notifiable->name)
             ->line('Sesi konseling Anda telah dijadwalkan.')
             ->line('Tanggal: '.$this->sesi->tanggal_konseling)
             ->line('Jam: '.$this->sesi->jam_mulai)
