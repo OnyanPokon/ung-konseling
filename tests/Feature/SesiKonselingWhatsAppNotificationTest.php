@@ -314,7 +314,7 @@ class SesiKonselingWhatsAppNotificationTest extends TestCase
 
         Notification::assertSentTo($this->konseliUser, SesiKonselingCreated::class, function ($notification) {
             $mail = $notification->toMail($this->konseliUser);
-            
+
             return str_contains($mail->greeting, self::KONSELI_NAME);
         });
     }
