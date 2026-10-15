@@ -6,71 +6,66 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class LaisegRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        $answerRule = 'required|in:sangat_setuju,setuju,tidak_setuju,sangat_tidak_setuju,lainnya';
+
         if ($this->isMethod('post')) {
             return [
                 'sesi_konseling_id' => 'required|exists:sesi_konselings,id',
 
-                'topik_pembahasan' => 'required|string',
+                'q1_topik_sesuai' => $answerRule,
+                'q1_lainnya' => 'nullable|required_if:q1_topik_sesuai,lainnya|string',
 
-                'pemahaman_baru' => 'required|string',
+                'q2_pemahaman_baru' => $answerRule,
+                'q2_lainnya' => 'nullable|required_if:q2_pemahaman_baru,lainnya|string',
 
-                'perasaan_setelah_layanan' => 'required|string',
+                'q3_merasa_lebih_baik' => $answerRule,
+                'q3_lainnya' => 'nullable|required_if:q3_merasa_lebih_baik,lainnya|string',
 
-                'rencana_setelah_layanan' => 'required|string',
+                'q4_rencana_tindakan' => $answerRule,
+                'q4_lainnya' => 'nullable|required_if:q4_rencana_tindakan,lainnya|string',
 
-                'apakah_terkait_masalah' => 'required|boolean',
+                'q5_berkaitan_masalah' => $answerRule,
+                'q5_lainnya' => 'nullable|required_if:q5_berkaitan_masalah,lainnya|string',
 
-                'keuntungan_jika_ya' => 'required|string',
+                'q6_manfaat_layanan' => $answerRule,
+                'q6_lainnya' => 'nullable|required_if:q6_manfaat_layanan,lainnya|string',
 
-                'keuntungan_jika_tidak' => 'required|string',
-
-                'saran_pesan' => 'required|string',
+                'q7_layanan_sudah_baik' => $answerRule,
+                'q7_lainnya' => 'nullable|required_if:q7_layanan_sudah_baik,lainnya|string',
             ];
         }
 
         if ($this->isMethod('put') || $this->isMethod('patch')) {
             return [
-                'sesi_konseling_id.required' => 'Sesi konseling wajib diisi.',
-                'sesi_konseling_id.exists' => 'Sesi konseling tidak ditemukan.',
+                'sesi_konseling_id' => 'sometimes|exists:sesi_konselings,id',
 
-                'topik_pembahasan.required' => 'Topik pembahasan wajib diisi.',
-                'topik_pembahasan.string' => 'Topik pembahasan harus berupa teks.',
+                'q1_topik_sesuai' => 'sometimes|in:sangat_setuju,setuju,tidak_setuju,sangat_tidak_setuju,lainnya',
+                'q1_lainnya' => 'nullable|required_if:q1_topik_sesuai,lainnya|string',
 
-                'pemahaman_baru.required' => 'Pemahaman baru wajib diisi.',
-                'pemahaman_baru.string' => 'Pemahaman baru harus berupa teks.',
+                'q2_pemahaman_baru' => 'sometimes|in:sangat_setuju,setuju,tidak_setuju,sangat_tidak_setuju,lainnya',
+                'q2_lainnya' => 'nullable|required_if:q2_pemahaman_baru,lainnya|string',
 
-                'perasaan_setelah_layanan.required' => 'Perasaan setelah layanan wajib diisi.',
-                'perasaan_setelah_layanan.string' => 'Perasaan setelah layanan harus berupa teks.',
+                'q3_merasa_lebih_baik' => 'sometimes|in:sangat_setuju,setuju,tidak_setuju,sangat_tidak_setuju,lainnya',
+                'q3_lainnya' => 'nullable|required_if:q3_merasa_lebih_baik,lainnya|string',
 
-                'rencana_setelah_layanan.required' => 'Rencana setelah layanan wajib diisi.',
-                'rencana_setelah_layanan.string' => 'Rencana setelah layanan harus berupa teks.',
+                'q4_rencana_tindakan' => 'sometimes|in:sangat_setuju,setuju,tidak_setuju,sangat_tidak_setuju,lainnya',
+                'q4_lainnya' => 'nullable|required_if:q4_rencana_tindakan,lainnya|string',
 
-                'apakah_terkait_masalah.required' => 'Pilihan terkait masalah wajib diisi.',
-                'apakah_terkait_masalah.boolean' => 'Pilihan terkait masalah tidak valid.',
+                'q5_berkaitan_masalah' => 'sometimes|in:sangat_setuju,setuju,tidak_setuju,sangat_tidak_setuju,lainnya',
+                'q5_lainnya' => 'nullable|required_if:q5_berkaitan_masalah,lainnya|string',
 
-                'keuntungan_jika_ya.required' => 'Keuntungan jika ya wajib diisi.',
-                'keuntungan_jika_ya.string' => 'Keuntungan jika ya harus berupa teks.',
+                'q6_manfaat_layanan' => 'sometimes|in:sangat_setuju,setuju,tidak_setuju,sangat_tidak_setuju,lainnya',
+                'q6_lainnya' => 'nullable|required_if:q6_manfaat_layanan,lainnya|string',
 
-                'keuntungan_jika_tidak.required' => 'Keuntungan jika tidak wajib diisi.',
-                'keuntungan_jika_tidak.string' => 'Keuntungan jika tidak harus berupa teks.',
-
-                'saran_pesan.required' => 'Saran dan pesan wajib diisi.',
-                'saran_pesan.string' => 'Saran dan pesan harus berupa teks.',
+                'q7_layanan_sudah_baik' => 'sometimes|in:sangat_setuju,setuju,tidak_setuju,sangat_tidak_setuju,lainnya',
+                'q7_lainnya' => 'nullable|required_if:q7_layanan_sudah_baik,lainnya|string',
             ];
         }
 
@@ -80,24 +75,36 @@ class LaisegRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'sesi_layanan_id.required' => 'Sesi layanan wajib diisi.',
-            'sesi_layanan_id.exists' => 'Sesi layanan tidak valid.',
+            'sesi_konseling_id.required' => 'Sesi konseling wajib diisi.',
+            'sesi_konseling_id.exists' => 'Sesi konseling tidak ditemukan.',
 
-            'topik_pembahasan.string' => 'Topik pembahasan harus berupa teks.',
+            'q1_topik_sesuai.required' => 'Pertanyaan 1 wajib dijawab.',
+            'q1_topik_sesuai.in' => 'Jawaban pertanyaan 1 tidak valid.',
+            'q1_lainnya.required_if' => 'Jawaban lainnya pertanyaan 1 wajib diisi.',
 
-            'pemahaman_baru.string' => 'Pemahaman baru harus berupa teks.',
+            'q2_pemahaman_baru.required' => 'Pertanyaan 2 wajib dijawab.',
+            'q2_pemahaman_baru.in' => 'Jawaban pertanyaan 2 tidak valid.',
+            'q2_lainnya.required_if' => 'Jawaban lainnya pertanyaan 2 wajib diisi.',
 
-            'perasaan_setelah_layanan.string' => 'Perasaan setelah layanan harus berupa teks.',
+            'q3_merasa_lebih_baik.required' => 'Pertanyaan 3 wajib dijawab.',
+            'q3_merasa_lebih_baik.in' => 'Jawaban pertanyaan 3 tidak valid.',
+            'q3_lainnya.required_if' => 'Jawaban lainnya pertanyaan 3 wajib diisi.',
 
-            'rencana_setelah_layanan.string' => 'Rencana setelah layanan harus berupa teks.',
+            'q4_rencana_tindakan.required' => 'Pertanyaan 4 wajib dijawab.',
+            'q4_rencana_tindakan.in' => 'Jawaban pertanyaan 4 tidak valid.',
+            'q4_lainnya.required_if' => 'Jawaban lainnya pertanyaan 4 wajib diisi.',
 
-            'apakah_terkait_masalah.boolean' => 'Field terkait masalah harus berupa true atau false.',
+            'q5_berkaitan_masalah.required' => 'Pertanyaan 5 wajib dijawab.',
+            'q5_berkaitan_masalah.in' => 'Jawaban pertanyaan 5 tidak valid.',
+            'q5_lainnya.required_if' => 'Jawaban lainnya pertanyaan 5 wajib diisi.',
 
-            'keuntungan_jika_ya.string' => 'Keuntungan jika ya harus berupa teks.',
+            'q6_manfaat_layanan.required' => 'Pertanyaan 6 wajib dijawab.',
+            'q6_manfaat_layanan.in' => 'Jawaban pertanyaan 6 tidak valid.',
+            'q6_lainnya.required_if' => 'Jawaban lainnya pertanyaan 6 wajib diisi.',
 
-            'keuntungan_jika_tidak.string' => 'Keuntungan jika tidak harus berupa teks.',
-
-            'saran_pesan.string' => 'Saran atau pesan harus berupa teks.',
+            'q7_layanan_sudah_baik.required' => 'Pertanyaan 7 wajib dijawab.',
+            'q7_layanan_sudah_baik.in' => 'Jawaban pertanyaan 7 tidak valid.',
+            'q7_lainnya.required_if' => 'Jawaban lainnya pertanyaan 7 wajib diisi.',
         ];
     }
 }
