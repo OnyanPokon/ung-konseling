@@ -17,19 +17,13 @@ class LaisegResources extends JsonResource
         return [
             'id' => $this->id,
             'q1_topik_sesuai' => $this->q1_topik_sesuai,
-            'q1_lainnya' => $this->q1_lainnya,
             'q2_pemahaman_baru' => $this->q2_pemahaman_baru,
-            'q2_lainnya' => $this->q2_lainnya,
             'q3_merasa_lebih_baik' => $this->q3_merasa_lebih_baik,
-            'q3_lainnya' => $this->q3_lainnya,
             'q4_rencana_tindakan' => $this->q4_rencana_tindakan,
-            'q4_lainnya' => $this->q4_lainnya,
             'q5_berkaitan_masalah' => $this->q5_berkaitan_masalah,
-            'q5_lainnya' => $this->q5_lainnya,
             'q6_manfaat_layanan' => $this->q6_manfaat_layanan,
-            'q6_lainnya' => $this->q6_lainnya,
             'q7_layanan_sudah_baik' => $this->q7_layanan_sudah_baik,
-            'q7_lainnya' => $this->q7_lainnya,
+            'catatan_lainnya' => $this->catatan_lainnya,
             'sesi_konseling' => [
                 'id' => $this->sesi_konseling->id,
                 'tiket' => [
